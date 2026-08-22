@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeDraft</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <h1 class="app-title">PokeDraft</h1>
+
+        <!-- Lobby Screen -->
+        <section id="lobby-screen" class="screen">
+            <div class="lobby-menu">
+                <button id="host-btn" class="pixel-btn">Host Game</button>
+                <button id="join-btn" class="pixel-btn">Join Game</button>
+                <div id="join-form" class="join-form hidden">
+                    <input id="join-room-input" type="text" placeholder="Room ID" class="pixel-input">
+                    <button id="join-confirm-btn" class="pixel-btn">Connect</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Screen -->
+        <section id="game-screen" class="screen hidden">
+            <div class="lab-desk">
+                <div class="draft-slot" data-slot="0">
+                    <div class="pokeball-icon"></div>
+                </div>
+                <div class="draft-slot" data-slot="1">
+                    <div class="pokeball-icon"></div>
+                </div>
+                <div class="draft-slot" data-slot="2">
+                    <div class="pokeball-icon"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dialogue Box -->
+        <footer id="dialogue-box" class="dialogue-box">
+            <p id="dialogue-text">Welcome, Trainer! Host or join a game to begin.</p>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
