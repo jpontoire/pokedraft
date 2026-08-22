@@ -3,12 +3,26 @@
 const DRAFT_SIZE = 3;
 const MAX_TURNS = 12;
 
+// Standard Pokedex ID ranges per generation
+const GENERATION_RANGES = [
+    { gen: 1, min: 1, max: 151 },
+    { gen: 2, min: 152, max: 251 },
+    { gen: 3, min: 252, max: 386 },
+    { gen: 4, min: 387, max: 493 },
+    { gen: 5, min: 494, max: 649 },
+    { gen: 6, min: 650, max: 721 },
+    { gen: 7, min: 722, max: 809 },
+    { gen: 8, min: 810, max: 905 },
+    { gen: 9, min: 906, max: 1025 }
+];
+
 let pokemonDatabase = [];
 let peer = null;
 let connection = null;
 let isHost = false;
 
 // Draft state, mirrored on both peers
+let gameSettings = null;
 let currentTurn = 0;
 let pickerIsHostThisTurn = null;
 let currentStarterIds = [];
@@ -18,6 +32,7 @@ let guestTeam = [];
 let hostRoomId = null;
 
 const lobbyScreen = document.getElementById('lobby-screen');
+const settingsScreen = document.getElementById('settings-screen');
 const gameScreen = document.getElementById('game-screen');
 const dialogueText = document.getElementById('dialogue-text');
 const nextTurnBtn = document.getElementById('next-turn-btn');
@@ -34,13 +49,31 @@ const joinForm = document.getElementById('join-form');
 const joinRoomInput = document.getElementById('join-room-input');
 const joinConfirmBtn = document.getElementById('join-confirm-btn');
 
+const hostSettingsForm = document.getElementById('host-settings-form');
+const guestSettingsLoading = document.getElementById('guest-settings-loading');
+const generationCheckboxes = document.getElementById('generation-checkboxes');
+const allowLegendariesCheckbox = document.getElementById('allow-legendaries');
+const allowMythicalsCheckbox = document.getElementById('allow-mythicals');
+const clueSelect = document.getElementById('clue-select');
+const startDraftBtn = document.getElementById('start-draft-btn');
+
 function setDialogue(message) {
     dialogueText.textContent = message;
 }
 
 function showGameScreen() {
     lobbyScreen.classList.add('hidden');
+    settingsScreen.classList.add('hidden');
     gameScreen.classList.remove('hidden');
+}
+
+function showSettingsScreen() {
+    lobbyScreen.classList.add('hidden');
+    gameScreen.classList.add('hidden');
+    settingsScreen.classList.remove('hidden');
+
+    hostSettingsForm.classList.toggle('hidden', !isHost);
+    guestSettingsLoading.classList.toggle('hidden', isHost);
 }
 
 async function loadPokemonDatabase() {
@@ -58,15 +91,87 @@ function getPokemonById(id) {
     return pokemonDatabase.find((pokemon) => pokemon.id === id);
 }
 
+function capitalize(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 function formatTypes(types) {
-    return types.map((type) => type.charAt(0).toUpperCase() + type.slice(1)).join(' / ');
+    return types.map(capitalize).join(' / ');
+}
+
+function getGeneration(pokemonId) {
+    const range = GENERATION_RANGES.find((r) => pokemonId >= r.min && pokemonId <= r.max);
+    return range ? range.gen : null;
+}
+
+function getFilteredPokedex(settings) {
+    return pokemonDatabase.filter((pokemon) => {
+        if (!settings.allowedGenerations.includes(getGeneration(pokemon.id))) return false;
+        if (pokemon.attributes.is_legendary && !settings.allowLegendaries) return false;
+        if (pokemon.attributes.is_mythical && !settings.allowMythicals) return false;
+        return true;
+    });
 }
 
 function pickRandomStarterIds(count) {
     const draftedIds = new Set([...hostTeam, ...guestTeam]);
-    const available = pokemonDatabase.filter((pokemon) => !draftedIds.has(pokemon.id));
+    const filteredPokedex = getFilteredPokedex(gameSettings);
+    const available = filteredPokedex.filter((pokemon) => !draftedIds.has(pokemon.id));
     const shuffled = [...available].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count).map((pokemon) => pokemon.id);
+}
+
+function getClueText(pokemon) {
+    switch (gameSettings.clueType) {
+        case 'color':
+            return capitalize(pokemon.attributes.color);
+        case 'shape':
+            return capitalize(pokemon.attributes.shape);
+        case 'height_weight':
+            return `Height: ${(pokemon.attributes.height / 10).toFixed(1)}m / Weight: ${(pokemon.attributes.weight / 10).toFixed(1)}kg`;
+        case 'pokedex_num':
+            return `#${String(pokemon.id).padStart(4, '0')}`;
+        case 'types':
+        default:
+            return formatTypes(pokemon.types);
+    }
+}
+
+function getStatTier(value) {
+    if (value < 75) return 'low';
+    if (value <= 110) return 'mid';
+    return 'high';
+}
+
+function buildStatBarsHTML(pokemon) {
+    const statRows = [
+        { label: 'HP', value: pokemon.stats.hp },
+        { label: 'Attack', value: pokemon.stats.attack },
+        { label: 'Defense', value: pokemon.stats.defense },
+        { label: 'Sp. Atk', value: pokemon.stats.special_attack },
+        { label: 'Sp. Def', value: pokemon.stats.special_defense },
+        { label: 'Speed', value: pokemon.stats.speed }
+    ];
+
+    const rowsHTML = statRows.map((stat) => {
+        const widthPercent = Math.min((stat.value / 255) * 100, 100);
+        return `
+            <div class="stat-row">
+                <span class="stat-label">${stat.label}</span>
+                <span class="stat-value">${stat.value}</span>
+                <div class="stat-bar-track">
+                    <div class="stat-bar-fill stat-${getStatTier(stat.value)}" style="width: ${widthPercent}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="stat-block">
+            <p class="stat-block-title">Base Stats</p>
+            ${rowsHTML}
+        </div>
+    `;
 }
 
 function amIPicker() {
@@ -105,12 +210,16 @@ function buildSlotHTML(pokemonId, index) {
         `;
     }
 
+    const clueHTML = gameSettings.clueType === 'base_stats'
+        ? buildStatBarsHTML(pokemon)
+        : `<p class="slot-clue-label">${getClueText(pokemon)}</p>`;
+
     return `
         <div class="slot-wrapper">
             <div class="${slotClasses.join(' ')}" data-slot="${index}">
                 <div class="pokeball-icon"></div>
             </div>
-            <p class="slot-types-label">${formatTypes(pokemon.types)}</p>
+            ${clueHTML}
         </div>
     `;
 }
@@ -191,6 +300,7 @@ function startTurn(data) {
     currentStarterIds = data.starterIds;
     pickedSlotIndex = null;
 
+    showGameScreen();
     nextTurnBtn.classList.add('hidden');
     renderSlots();
     updateTurnInfo();
@@ -201,6 +311,17 @@ function advanceTurn() {
     const turnData = {
         turn: currentTurn + 1,
         pickerIsHost: !pickerIsHostThisTurn,
+        starterIds: pickRandomStarterIds(DRAFT_SIZE)
+    };
+
+    connection.send({ type: 'turn-start', ...turnData });
+    startTurn(turnData);
+}
+
+function startDraft() {
+    const turnData = {
+        turn: 1,
+        pickerIsHost: Math.random() < 0.5,
         starterIds: pickRandomStarterIds(DRAFT_SIZE)
     };
 
@@ -240,6 +361,35 @@ copyIdBtn.addEventListener('click', () => {
         });
 });
 
+startDraftBtn.addEventListener('click', () => {
+    const allowedGenerations = Array.from(
+        generationCheckboxes.querySelectorAll('input[type="checkbox"]:checked')
+    ).map((checkbox) => Number(checkbox.value));
+
+    if (allowedGenerations.length === 0) {
+        setDialogue('Select at least one generation to continue.');
+        return;
+    }
+
+    const newSettings = {
+        allowedGenerations,
+        allowLegendaries: allowLegendariesCheckbox.checked,
+        allowMythicals: allowMythicalsCheckbox.checked,
+        clueType: clueSelect.value
+    };
+
+    const filteredPool = getFilteredPokedex(newSettings);
+    const requiredPoolSize = MAX_TURNS * DRAFT_SIZE;
+    if (filteredPool.length < requiredPoolSize) {
+        window.alert(`Invalid settings! You need at least ${requiredPoolSize} Pokémon to complete the draft. Your current settings only leave ${filteredPool.length} available Pokémon.`);
+        return;
+    }
+
+    gameSettings = newSettings;
+    connection.send({ type: 'game-settings', settings: gameSettings });
+    startDraft();
+});
+
 exportBtn.addEventListener('click', () => {
     const myTeam = isHost ? hostTeam : guestTeam;
     const exportText = myTeam.map((id) => getPokemonById(id).names.english).join('\n\n');
@@ -258,22 +408,15 @@ function setupConnectionEvents(conn) {
     connection = conn;
 
     connection.on('open', () => {
-        if (isHost) {
-            setDialogue('Connected! Starting the draft...');
-            const turnData = {
-                turn: 1,
-                pickerIsHost: Math.random() < 0.5,
-                starterIds: pickRandomStarterIds(DRAFT_SIZE)
-            };
-            connection.send({ type: 'turn-start', ...turnData });
-            startTurn(turnData);
-        } else {
-            setDialogue('Connected! Waiting for the host to start the draft...');
-        }
+        showSettingsScreen();
+        setDialogue(isHost ? 'Configure the game settings, then start the draft.' : 'Host is configuring game settings...');
     });
 
     connection.on('data', (data) => {
         switch (data.type) {
+            case 'game-settings':
+                gameSettings = data.settings;
+                break;
             case 'turn-start':
                 startTurn(data);
                 break;

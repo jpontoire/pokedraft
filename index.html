@@ -25,6 +25,54 @@
             </div>
         </section>
 
+        <!-- Settings Screen -->
+        <section id="settings-screen" class="screen hidden">
+            <div id="host-settings-form" class="settings-form hidden">
+                <h2 class="settings-title">Game Settings</h2>
+
+                <div class="settings-group">
+                    <p class="settings-label">Allowed Generations</p>
+                    <div id="generation-checkboxes" class="generation-checkboxes">
+                        <label class="checkbox-option"><input type="checkbox" value="1" checked> Gen 1</label>
+                        <label class="checkbox-option"><input type="checkbox" value="2" checked> Gen 2</label>
+                        <label class="checkbox-option"><input type="checkbox" value="3" checked> Gen 3</label>
+                        <label class="checkbox-option"><input type="checkbox" value="4" checked> Gen 4</label>
+                        <label class="checkbox-option"><input type="checkbox" value="5" checked> Gen 5</label>
+                        <label class="checkbox-option"><input type="checkbox" value="6" checked> Gen 6</label>
+                        <label class="checkbox-option"><input type="checkbox" value="7" checked> Gen 7</label>
+                        <label class="checkbox-option"><input type="checkbox" value="8" checked> Gen 8</label>
+                        <label class="checkbox-option"><input type="checkbox" value="9" checked> Gen 9</label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <p class="settings-label">Legendaries &amp; Mythicals</p>
+                    <div class="legendary-checkboxes">
+                        <label class="checkbox-option"><input type="checkbox" id="allow-legendaries" checked> Allow Legendaries</label>
+                        <label class="checkbox-option"><input type="checkbox" id="allow-mythicals" checked> Allow Mythicals</label>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label for="clue-select" class="settings-label">Blind Picker Clue</label>
+                    <select id="clue-select" class="pixel-select">
+                        <option value="types">Types</option>
+                        <option value="color">Color</option>
+                        <option value="shape">Shape</option>
+                        <option value="height_weight">Height / Weight</option>
+                        <option value="pokedex_num">Pokedex Number</option>
+                        <option value="base_stats">Base Stats</option>
+                    </select>
+                </div>
+
+                <button id="start-draft-btn" class="pixel-btn">Start Draft</button>
+            </div>
+
+            <div id="guest-settings-loading" class="settings-loading hidden">
+                <div class="loading-pokeball"></div>
+            </div>
+        </section>
+
         <!-- Game Screen -->
         <section id="game-screen" class="screen hidden">
             <div id="room-id-bar" class="room-id-bar hidden">
