@@ -15,13 +15,18 @@ let currentStarterIds = [];
 let pickedSlotIndex = null;
 let hostTeam = [];
 let guestTeam = [];
+let hostRoomId = null;
 
 const lobbyScreen = document.getElementById('lobby-screen');
 const gameScreen = document.getElementById('game-screen');
 const dialogueText = document.getElementById('dialogue-text');
 const nextTurnBtn = document.getElementById('next-turn-btn');
+const exportBtn = document.getElementById('export-btn');
 const turnInfo = document.getElementById('turn-info');
 const labDesk = document.getElementById('lab-desk');
+const roomIdBar = document.getElementById('room-id-bar');
+const roomIdText = document.getElementById('room-id-text');
+const copyIdBtn = document.getElementById('copy-id-btn');
 
 const hostBtn = document.getElementById('host-btn');
 const joinBtn = document.getElementById('join-btn');
@@ -111,6 +116,7 @@ function buildSlotHTML(pokemonId, index) {
 }
 
 function renderSlots() {
+    labDesk.classList.remove('team-grid');
     labDesk.innerHTML = currentStarterIds.map((id, index) => buildSlotHTML(id, index)).join('');
 }
 
@@ -121,9 +127,28 @@ function animateSlot(index) {
     setTimeout(() => slotEl.classList.remove('flipping'), 400);
 }
 
+function renderTeamShowcase() {
+    const myTeam = isHost ? hostTeam : guestTeam;
+    turnInfo.textContent = 'Draft complete! Here is your team:';
+    labDesk.classList.add('team-grid');
+    labDesk.innerHTML = myTeam.map((id) => {
+        const pokemon = getPokemonById(id);
+        const tooltip = `${pokemon.names.english} (#${pokemon.id})`;
+        return `
+            <div class="slot-wrapper">
+                <div class="draft-slot team-slot" data-tooltip="${tooltip}">
+                    <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemon.names.english}">
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
 function endDraft() {
     nextTurnBtn.classList.add('hidden');
-    setDialogue('Draft complete! Check the console for the final teams.');
+    setDialogue('Draft complete! Your team is ready.');
+    renderTeamShowcase();
+    exportBtn.classList.remove('hidden');
     console.log('Host team:', hostTeam.map((id) => getPokemonById(id).names.english));
     console.log('Guest team:', guestTeam.map((id) => getPokemonById(id).names.english));
 }
@@ -200,6 +225,35 @@ nextTurnBtn.addEventListener('click', () => {
     }
 });
 
+copyIdBtn.addEventListener('click', () => {
+    if (!hostRoomId) return;
+
+    navigator.clipboard.writeText(hostRoomId)
+        .then(() => {
+            copyIdBtn.textContent = 'Copied!';
+            setTimeout(() => {
+                copyIdBtn.textContent = 'Copy';
+            }, 2000);
+        })
+        .catch((error) => {
+            console.error('Failed to copy the room ID:', error);
+        });
+});
+
+exportBtn.addEventListener('click', () => {
+    const myTeam = isHost ? hostTeam : guestTeam;
+    const exportText = myTeam.map((id) => getPokemonById(id).names.english).join('\n\n');
+
+    navigator.clipboard.writeText(exportText)
+        .then(() => {
+            alert('Team copied to clipboard!');
+        })
+        .catch((error) => {
+            console.error('Failed to copy the team to clipboard:', error);
+            alert('Could not copy the team. Please try again.');
+        });
+});
+
 function setupConnectionEvents(conn) {
     connection = conn;
 
@@ -255,8 +309,11 @@ function hostGame() {
 
     peer.on('open', (id) => {
         console.log('Host Peer ID:', id);
+        hostRoomId = id;
         setDialogue(`Room created! Share this ID with your friend: ${id}`);
         showGameScreen();
+        roomIdText.textContent = `Room ID: ${id}`;
+        roomIdBar.classList.remove('hidden');
     });
 
     peer.on('connection', (conn) => {

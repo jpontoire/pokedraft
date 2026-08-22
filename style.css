@@ -99,6 +99,33 @@ body {
 }
 
 /* Game Screen */
+.room-id-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 10px;
+}
+
+.room-id-text {
+    letter-spacing: 1px;
+    word-break: break-all;
+}
+
+.small-btn {
+    font-size: 9px;
+    padding: 8px 12px;
+    box-shadow: 3px 3px 0 var(--color-border);
+}
+
+.small-btn:hover {
+    box-shadow: 1px 1px 0 var(--color-border);
+}
+
+.small-btn:active {
+    box-shadow: 0 0 0 var(--color-border);
+}
+
 .turn-info {
     text-align: center;
     font-size: 10px;
@@ -217,6 +244,25 @@ body {
     animation: flip-reveal 0.4s linear, slot-glow 0.8s ease-in-out 2;
 }
 
+/* Final team showcase */
+.lab-desk.team-grid {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: center;
+    align-items: start;
+    gap: 24px 48px;
+}
+
+.draft-slot.team-slot {
+    width: 90px;
+    height: 90px;
+}
+
+.draft-slot.team-slot .pokemon-sprite {
+    width: 70px;
+    height: 70px;
+}
+
 .pokeball-icon {
     width: 60px;
     height: 60px;
@@ -267,10 +313,16 @@ body {
     word-break: break-word;
 }
 
-#next-turn-btn {
+.dialogue-actions {
+    align-self: flex-end;
+    display: flex;
+    gap: 12px;
+}
+
+#next-turn-btn,
+#export-btn {
     font-size: 11px;
     padding: 10px 18px;
-    align-self: flex-end;
 }
 
 @media (max-width: 480px) {
