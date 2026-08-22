@@ -27,22 +27,16 @@
 
         <!-- Game Screen -->
         <section id="game-screen" class="screen hidden">
-            <div class="lab-desk">
-                <div class="draft-slot" data-slot="0">
-                    <div class="pokeball-icon"></div>
-                </div>
-                <div class="draft-slot" data-slot="1">
-                    <div class="pokeball-icon"></div>
-                </div>
-                <div class="draft-slot" data-slot="2">
-                    <div class="pokeball-icon"></div>
-                </div>
-            </div>
+            <p id="turn-info" class="turn-info"></p>
+            <div id="lab-desk" class="lab-desk"></div>
         </section>
 
         <!-- Dialogue Box -->
         <footer id="dialogue-box" class="dialogue-box">
-            <p id="dialogue-text">Welcome, Trainer! Host or join a game to begin.</p>
+            <div class="dialogue-content">
+                <p id="dialogue-text">Welcome, Trainer! Host or join a game to begin.</p>
+                <button id="next-turn-btn" class="pixel-btn hidden">Next Turn</button>
+            </div>
         </footer>
     </div>
 
