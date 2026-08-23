@@ -57,8 +57,12 @@ const joinConfirmBtn = document.getElementById('join-confirm-btn');
 const hostSettingsForm = document.getElementById('host-settings-form');
 const guestSettingsLoading = document.getElementById('guest-settings-loading');
 const generationCheckboxes = document.getElementById('generation-checkboxes');
-const allowLegendariesCheckbox = document.getElementById('allow-legendaries');
-const allowMythicalsCheckbox = document.getElementById('allow-mythicals');
+const legendaryMinInput = document.getElementById('legendary-min');
+const legendaryMaxInput = document.getElementById('legendary-max');
+const symmetricalLegendariesCheckbox = document.getElementById('symmetrical-legendaries');
+const mythicalMinInput = document.getElementById('mythical-min');
+const mythicalMaxInput = document.getElementById('mythical-max');
+const symmetricalMythicalsCheckbox = document.getElementById('symmetrical-mythicals');
 const clueSelect = document.getElementById('clue-select');
 const startDraftBtn = document.getElementById('start-draft-btn');
 
@@ -115,12 +119,13 @@ function getGeneration(pokemonId) {
 }
 
 function getFilteredPokedex(settings) {
-    return pokemonDatabase.filter((pokemon) => {
-        if (!settings.allowedGenerations.includes(getGeneration(pokemon.id))) return false;
-        if (pokemon.attributes.is_legendary && !settings.allowLegendaries) return false;
-        if (pokemon.attributes.is_mythical && !settings.allowMythicals) return false;
-        return true;
-    });
+    const generationFiltered = pokemonDatabase.filter((pokemon) => settings.allowedGenerations.includes(getGeneration(pokemon.id)));
+
+    return {
+        legendaryPool: generationFiltered.filter((pokemon) => pokemon.attributes.is_legendary),
+        mythicalPool: generationFiltered.filter((pokemon) => pokemon.attributes.is_mythical),
+        standardPool: generationFiltered.filter((pokemon) => !pokemon.attributes.is_legendary && !pokemon.attributes.is_mythical)
+    };
 }
 
 function shuffle(array) {
@@ -132,11 +137,39 @@ function shuffle(array) {
     return shuffled;
 }
 
-function pickRandomStarterIds(count) {
+function randomIntInRange(min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+function pickUniqueTurns(count) {
+    return shuffle([1, 2, 3, 4, 5, 6]).slice(0, count).sort((a, b) => a - b);
+}
+
+function drawFromPool(pool, count, draftedIds) {
+    const available = pool.filter((pokemon) => !draftedIds.has(pokemon.id));
+    return shuffle(available).slice(0, count);
+}
+
+function pickRandomStarterIds(pickerIsHostForTurn) {
     const draftedIds = new Set([...hostTeam, ...guestTeam]);
-    const filteredPokedex = getFilteredPokedex(gameSettings);
-    const available = filteredPokedex.filter((pokemon) => !draftedIds.has(pokemon.id));
-    return shuffle(available).slice(0, count).map((pokemon) => pokemon.id);
+    const { legendaryPool, mythicalPool, standardPool } = getFilteredPokedex(gameSettings);
+
+    const pickerTeam = pickerIsHostForTurn ? hostTeam : guestTeam;
+    const pickNumber = pickerTeam.length + 1;
+    const legTurns = pickerIsHostForTurn ? gameSettings.hostLegTurns : gameSettings.guestLegTurns;
+    const mythTurns = pickerIsHostForTurn ? gameSettings.hostMythTurns : gameSettings.guestMythTurns;
+
+    const numLegToDraw = legTurns.includes(pickNumber) ? 1 : 0;
+    const numMythToDraw = mythTurns.includes(pickNumber) ? 1 : 0;
+    const numStdToDraw = DRAFT_SIZE - numLegToDraw - numMythToDraw;
+
+    const drawn = [
+        ...drawFromPool(legendaryPool, numLegToDraw, draftedIds),
+        ...drawFromPool(mythicalPool, numMythToDraw, draftedIds),
+        ...drawFromPool(standardPool, numStdToDraw, draftedIds)
+    ];
+
+    return shuffle(drawn).map((pokemon) => pokemon.id);
 }
 
 function getClueText(pokemon) {
@@ -396,10 +429,11 @@ function startTurn(data) {
 }
 
 function advanceTurn() {
+    const nextPickerIsHost = !pickerIsHostThisTurn;
     const turnData = {
         turn: currentTurn + 1,
-        pickerIsHost: !pickerIsHostThisTurn,
-        starterIds: pickRandomStarterIds(DRAFT_SIZE)
+        pickerIsHost: nextPickerIsHost,
+        starterIds: pickRandomStarterIds(nextPickerIsHost)
     };
 
     connection.send({ type: 'turn-start', ...turnData });
@@ -407,10 +441,11 @@ function advanceTurn() {
 }
 
 function startDraft() {
+    const pickerIsHost = Math.random() < 0.5;
     const turnData = {
         turn: 1,
-        pickerIsHost: Math.random() < 0.5,
-        starterIds: pickRandomStarterIds(DRAFT_SIZE)
+        pickerIsHost,
+        starterIds: pickRandomStarterIds(pickerIsHost)
     };
 
     connection.send({ type: 'turn-start', ...turnData });
@@ -466,17 +501,62 @@ startDraftBtn.addEventListener('click', () => {
         return;
     }
 
+    const legendaryMin = Number(legendaryMinInput.value);
+    const legendaryMax = Number(legendaryMaxInput.value);
+    const mythicalMin = Number(mythicalMinInput.value);
+    const mythicalMax = Number(mythicalMaxInput.value);
+
+    if (legendaryMin > legendaryMax) {
+        window.alert('Invalid settings! Min Legendaries cannot be greater than Max Legendaries.');
+        return;
+    }
+
+    if (mythicalMin > mythicalMax) {
+        window.alert('Invalid settings! Min Mythicals cannot be greater than Max Mythicals.');
+        return;
+    }
+
+    const legendarySymmetrical = symmetricalLegendariesCheckbox.checked;
+    const mythicalSymmetrical = symmetricalMythicalsCheckbox.checked;
+
+    const hostLegendaryTarget = randomIntInRange(legendaryMin, legendaryMax);
+    const guestLegendaryTarget = legendarySymmetrical ? hostLegendaryTarget : randomIntInRange(legendaryMin, legendaryMax);
+    const hostMythicalTarget = randomIntInRange(mythicalMin, mythicalMax);
+    const guestMythicalTarget = mythicalSymmetrical ? hostMythicalTarget : randomIntInRange(mythicalMin, mythicalMax);
+
     const newSettings = {
         allowedGenerations,
-        allowLegendaries: allowLegendariesCheckbox.checked,
-        allowMythicals: allowMythicalsCheckbox.checked,
+        legendaryMin,
+        legendaryMax,
+        legendarySymmetrical,
+        mythicalMin,
+        mythicalMax,
+        mythicalSymmetrical,
+        hostLegTurns: pickUniqueTurns(hostLegendaryTarget),
+        guestLegTurns: pickUniqueTurns(guestLegendaryTarget),
+        hostMythTurns: pickUniqueTurns(hostMythicalTarget),
+        guestMythTurns: pickUniqueTurns(guestMythicalTarget),
         clueType: clueSelect.value
     };
 
-    const filteredPool = getFilteredPokedex(newSettings);
+    const { legendaryPool, mythicalPool, standardPool } = getFilteredPokedex(newSettings);
+    const totalLegendaryDraws = hostLegendaryTarget + guestLegendaryTarget;
+    const totalMythicalDraws = hostMythicalTarget + guestMythicalTarget;
     const requiredPoolSize = MAX_TURNS * DRAFT_SIZE;
-    if (filteredPool.length < requiredPoolSize) {
-        window.alert(`Invalid settings! You need at least ${requiredPoolSize} Pokémon to complete the draft. Your current settings only leave ${filteredPool.length} available Pokémon.`);
+    const requiredStandardSize = requiredPoolSize - totalLegendaryDraws - totalMythicalDraws;
+
+    if (legendaryPool.length < totalLegendaryDraws) {
+        window.alert(`Invalid settings! Your generation filter only leaves ${legendaryPool.length} Legendary Pokémon, but ${totalLegendaryDraws} are needed to guarantee both players' picks.`);
+        return;
+    }
+
+    if (mythicalPool.length < totalMythicalDraws) {
+        window.alert(`Invalid settings! Your generation filter only leaves ${mythicalPool.length} Mythical Pokémon, but ${totalMythicalDraws} are needed to guarantee both players' picks.`);
+        return;
+    }
+
+    if (standardPool.length < requiredStandardSize) {
+        window.alert(`Invalid settings! You need at least ${requiredStandardSize} standard Pokémon to complete the draft. Your current settings only leave ${standardPool.length} available.`);
         return;
     }
 

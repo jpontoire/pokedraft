@@ -53,11 +53,21 @@
                         </div>
 
                         <div class="settings-group">
-                            <p class="settings-label">Legendaries &amp; Mythicals</p>
-                            <div class="legendary-checkboxes">
-                                <label class="checkbox-option"><input type="checkbox" id="allow-legendaries" checked> Allow Legendaries</label>
-                                <label class="checkbox-option"><input type="checkbox" id="allow-mythicals" checked> Allow Mythicals</label>
+                            <p class="settings-label">Legendaries Settings</p>
+                            <div class="stat-input-row">
+                                <label>Min <input type="number" id="legendary-min" class="pixel-number-input" min="0" max="6" value="0"></label>
+                                <label>Max <input type="number" id="legendary-max" class="pixel-number-input" min="0" max="6" value="1"></label>
                             </div>
+                            <label class="checkbox-option"><input type="checkbox" id="symmetrical-legendaries" checked> Symmetrical Legendaries</label>
+                        </div>
+
+                        <div class="settings-group">
+                            <p class="settings-label">Mythicals Settings</p>
+                            <div class="stat-input-row">
+                                <label>Min <input type="number" id="mythical-min" class="pixel-number-input" min="0" max="6" value="0"></label>
+                                <label>Max <input type="number" id="mythical-max" class="pixel-number-input" min="0" max="6" value="0"></label>
+                            </div>
+                            <label class="checkbox-option"><input type="checkbox" id="symmetrical-mythicals" checked> Symmetrical Mythicals</label>
                         </div>
 
                         <div class="settings-group">
