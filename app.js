@@ -40,6 +40,10 @@ const nextTurnBtn = document.getElementById('next-turn-btn');
 const exportBtn = document.getElementById('export-btn');
 const turnInfo = document.getElementById('turn-info');
 const labDesk = document.getElementById('lab-desk');
+const myTeamPanel = document.getElementById('my-team-panel');
+const opponentTeamPanel = document.getElementById('opponent-team-panel');
+const myTeamSlots = document.getElementById('my-team-slots');
+const opponentTeamSlots = document.getElementById('opponent-team-slots');
 const roomIdBar = document.getElementById('room-id-bar');
 const roomIdText = document.getElementById('room-id-text');
 const copyIdBtn = document.getElementById('copy-id-btn');
@@ -66,12 +70,17 @@ function showGameScreen() {
     lobbyScreen.classList.add('hidden');
     settingsScreen.classList.add('hidden');
     gameScreen.classList.remove('hidden');
+    myTeamPanel.classList.remove('hidden');
+    opponentTeamPanel.classList.remove('hidden');
+    renderTeamPanels();
 }
 
 function showSettingsScreen() {
     lobbyScreen.classList.add('hidden');
     gameScreen.classList.add('hidden');
     settingsScreen.classList.remove('hidden');
+    myTeamPanel.classList.add('hidden');
+    opponentTeamPanel.classList.add('hidden');
 
     hostSettingsForm.classList.toggle('hidden', !isHost);
     guestSettingsLoading.classList.toggle('hidden', isHost);
@@ -246,7 +255,7 @@ function buildSlotHTML(pokemonId, index) {
 }
 
 function renderSlots() {
-    labDesk.classList.remove('team-grid');
+    labDesk.classList.remove('showcase');
     labDesk.innerHTML = currentStarterIds.map((id, index) => buildSlotHTML(id, index)).join('');
 }
 
@@ -257,21 +266,61 @@ function animateSlot(index) {
     setTimeout(() => slotEl.classList.remove('flipping'), 400);
 }
 
-function renderTeamShowcase() {
+function buildMiniTeamSlotHTML(pokemonId) {
+    if (pokemonId === undefined) {
+        return `<div class="mini-team-slot empty"></div>`;
+    }
+
+    const pokemon = getPokemonById(pokemonId);
+    const tooltip = `${pokemon.names.english} (#${pokemon.id})`;
+    return `
+        <div class="mini-team-slot" data-tooltip="${tooltip}">
+            <img class="mini-team-sprite" src="${pokemon.media.sprite}" alt="${pokemon.names.english}">
+        </div>
+    `;
+}
+
+function renderTeamPanels() {
     const myTeam = isHost ? hostTeam : guestTeam;
-    turnInfo.textContent = 'Draft complete! Here is your team:';
-    labDesk.classList.add('team-grid');
-    labDesk.innerHTML = myTeam.map((id) => {
+    const opponentTeam = isHost ? guestTeam : hostTeam;
+
+    myTeamSlots.innerHTML = Array.from({ length: 6 }, (_, i) => buildMiniTeamSlotHTML(myTeam[i])).join('');
+    opponentTeamSlots.innerHTML = Array.from({ length: 6 }, (_, i) => buildMiniTeamSlotHTML(opponentTeam[i])).join('');
+}
+
+function buildShowcaseTeamHTML(team, isMine) {
+    const slotsHTML = team.map((id) => {
         const pokemon = getPokemonById(id);
         const tooltip = `${pokemon.names.english} (#${pokemon.id})`;
         return `
-            <div class="slot-wrapper">
-                <div class="draft-slot team-slot" data-tooltip="${tooltip}">
-                    <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemon.names.english}">
-                </div>
+            <div class="draft-slot team-slot" data-tooltip="${tooltip}">
+                <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemon.names.english}">
             </div>
         `;
     }).join('');
+
+    return `
+        <div class="showcase-team ${isMine ? 'mine' : ''}">
+            <p class="showcase-team-title">${isMine ? 'Your Team (You)' : 'Opponent Team'}</p>
+            <div class="showcase-grid">${slotsHTML}</div>
+        </div>
+    `;
+}
+
+function renderTeamShowcase() {
+    const myTeam = isHost ? hostTeam : guestTeam;
+    const opponentTeam = isHost ? guestTeam : hostTeam;
+
+    turnInfo.textContent = 'Draft complete!';
+    myTeamPanel.classList.add('hidden');
+    opponentTeamPanel.classList.add('hidden');
+
+    labDesk.classList.add('showcase');
+    labDesk.innerHTML = `
+        ${buildShowcaseTeamHTML(myTeam, true)}
+        <div class="vs-badge"><span>VS</span></div>
+        ${buildShowcaseTeamHTML(opponentTeam, false)}
+    `;
 }
 
 function endDraft() {
@@ -288,6 +337,7 @@ function finalizePick(index) {
     renderSlots();
     animateSlot(index);
     updateTurnInfo();
+    renderTeamPanels();
     setDialogue(`${pokemon.names.english} was selected!`);
 
     if (currentTurn >= MAX_TURNS) {

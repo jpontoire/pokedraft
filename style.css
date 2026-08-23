@@ -30,15 +30,30 @@ body {
 
 #app {
     width: 100%;
-    max-width: 720px;
+    max-width: 1400px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 28px;
+}
+
+#app-layout {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 32px;
+}
+
+#main-column {
+    flex: 0 1 700px;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
 }
 
 .app-title {
     text-align: center;
-    font-size: 28px;
+    font-size: 36px;
     color: var(--color-accent);
     text-shadow: 3px 3px 0 var(--color-accent-dark);
     letter-spacing: 2px;
@@ -67,8 +82,8 @@ body {
 
 .pixel-btn {
     font-family: 'Press Start 2P', monospace;
-    font-size: 14px;
-    padding: 14px 24px;
+    font-size: 16px;
+    padding: 16px 28px;
     background-color: var(--color-accent);
     color: var(--color-text-light);
     border: 4px solid var(--color-border);
@@ -89,28 +104,28 @@ body {
 
 .pixel-input {
     font-family: 'Press Start 2P', monospace;
-    font-size: 12px;
-    padding: 10px;
+    font-size: 14px;
+    padding: 12px;
     border: 4px solid var(--color-border);
     background-color: var(--color-panel);
     color: var(--color-bg);
     text-align: center;
-    width: 220px;
+    width: 260px;
 }
 
 /* Settings Screen */
 .settings-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 24px;
+    gap: 24px;
+    padding: 28px;
     background-color: #2c2c2c;
     border: 4px solid var(--color-border);
 }
 
 .settings-title {
     margin: 0;
-    font-size: 14px;
+    font-size: 16px;
     text-align: center;
     color: var(--color-accent);
 }
@@ -118,45 +133,45 @@ body {
 .settings-group {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .settings-label {
     margin: 0;
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 1px;
 }
 
 .generation-checkboxes {
     display: grid;
     grid-template-columns: repeat(3, auto);
-    gap: 10px 16px;
+    gap: 12px 20px;
 }
 
 .legendary-checkboxes {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .checkbox-option {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 9px;
+    gap: 8px;
+    font-size: 11px;
     cursor: pointer;
 }
 
 .checkbox-option input {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
 }
 
 .pixel-select {
     font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    padding: 10px;
+    font-size: 13px;
+    padding: 12px;
     border: 4px solid var(--color-border);
     background-color: var(--color-panel);
     color: var(--color-bg);
@@ -165,18 +180,18 @@ body {
 
 #start-draft-btn {
     align-self: center;
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 .settings-loading {
     display: flex;
     justify-content: center;
-    padding: 48px 0;
+    padding: 56px 0;
 }
 
 .loading-pokeball {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background: linear-gradient(var(--color-accent) 0 46%, var(--color-border) 46% 54%, var(--color-panel) 54% 100%);
     border: 4px solid var(--color-border);
@@ -193,8 +208,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    font-size: 10px;
+    gap: 14px;
+    font-size: 12px;
 }
 
 .room-id-text {
@@ -203,8 +218,8 @@ body {
 }
 
 .small-btn {
-    font-size: 9px;
-    padding: 8px 12px;
+    font-size: 10px;
+    padding: 10px 14px;
     box-shadow: 3px 3px 0 var(--color-border);
 }
 
@@ -218,17 +233,70 @@ body {
 
 .turn-info {
     text-align: center;
-    font-size: 10px;
+    font-size: 13px;
     letter-spacing: 1px;
     color: var(--color-text-light);
     margin: 0;
 }
 
+.team-panel {
+    flex: 1 1 200px;
+    max-width: 300px;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 16px;
+    background-color: #2c2c2c;
+    border: 4px solid var(--color-border);
+}
+
+.team-panel-title {
+    margin: 0;
+    font-size: 13px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.team-slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin: auto 0;
+    width: 100%;
+}
+
+.mini-team-slot {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: var(--color-slot);
+    border: 3px solid var(--color-border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mini-team-slot.empty {
+    background-color: transparent;
+    border-style: dashed;
+    opacity: 0.4;
+}
+
+.mini-team-sprite {
+    width: 80%;
+    height: 80%;
+    image-rendering: pixelated;
+    object-fit: contain;
+}
+
 .lab-desk {
     display: flex;
     justify-content: center;
-    gap: 32px;
-    padding: 32px 16px;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 40px 20px;
     background-color: #2c2c2c;
     border: 4px solid var(--color-border);
     flex-wrap: wrap;
@@ -238,13 +306,13 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .draft-slot {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     background-color: var(--color-slot);
     border: 4px solid var(--color-border);
     display: flex;
@@ -271,45 +339,45 @@ body {
 }
 
 .pokemon-sprite {
-    width: 90px;
-    height: 90px;
+    width: 112px;
+    height: 112px;
     image-rendering: pixelated;
     object-fit: contain;
 }
 
 .slot-clue-label {
     margin: 0;
-    font-size: 9px;
+    font-size: 11px;
     text-align: center;
     color: var(--color-text-light);
-    min-height: 12px;
+    min-height: 14px;
 }
 
 /* Base Stats clue */
 .stat-block {
-    width: 200px;
+    width: 230px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .stat-block-title {
     margin: 0 0 4px;
-    font-size: 9px;
+    font-size: 11px;
     text-align: center;
     letter-spacing: 1px;
 }
 
 .stat-row {
     display: grid;
-    grid-template-columns: 56px 22px 1fr;
+    grid-template-columns: 64px 26px 1fr;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .stat-label,
 .stat-value {
-    font-size: 8px;
+    font-size: 10px;
     white-space: nowrap;
 }
 
@@ -318,7 +386,7 @@ body {
 }
 
 .stat-bar-track {
-    height: 8px;
+    height: 10px;
     background-color: #1a1a1a;
     border: 2px solid var(--color-border);
 }
@@ -341,7 +409,7 @@ body {
 
 /* Audio clue */
 .play-cry-btn {
-    font-size: 9px;
+    font-size: 10px;
 }
 
 .play-cry-btn:disabled {
@@ -352,12 +420,12 @@ body {
     pointer-events: none;
 }
 
-/* Tooltip: shown only on revealed slots (Guide, or a Picker's chosen slot) */
-.draft-slot[data-tooltip] {
+/* Tooltip: shown on revealed slots (Guide, a Picker's chosen slot, or a team panel entry) */
+[data-tooltip] {
     cursor: help;
 }
 
-.draft-slot[data-tooltip]::after {
+[data-tooltip]::after {
     content: attr(data-tooltip);
     position: absolute;
     bottom: calc(100% + 10px);
@@ -366,8 +434,8 @@ body {
     background-color: var(--color-panel);
     color: var(--color-bg);
     border: 3px solid var(--color-border);
-    padding: 6px 8px;
-    font-size: 9px;
+    padding: 7px 9px;
+    font-size: 10px;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
@@ -375,7 +443,7 @@ body {
     z-index: 10;
 }
 
-.draft-slot[data-tooltip]:hover::after {
+[data-tooltip]:hover::after {
     opacity: 1;
     transform: translateX(-50%) scale(1);
 }
@@ -416,27 +484,77 @@ body {
 }
 
 /* Final team showcase */
-.lab-desk.team-grid {
-    display: grid;
-    grid-template-columns: repeat(2, auto);
+.lab-desk.showcase {
+    display: flex;
+    align-items: center;
     justify-content: center;
-    align-items: start;
-    gap: 24px 48px;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.showcase-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.showcase-team-title {
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-align: center;
+    color: var(--color-text-light);
+}
+
+.showcase-team.mine .showcase-team-title {
+    color: gold;
+}
+
+.showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.showcase-team.mine .draft-slot.team-slot {
+    border-color: gold;
+    box-shadow: 0 0 12px 2px rgba(255, 215, 0, 0.5);
+}
+
+.vs-badge {
+    width: 70px;
+    height: 70px;
+    flex-shrink: 0;
+    background-color: var(--color-accent);
+    border: 4px solid var(--color-border);
+    transform: rotate(45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vs-badge span {
+    display: block;
+    transform: rotate(-45deg);
+    font-size: 16px;
+    color: var(--color-text-light);
+    text-shadow: 2px 2px 0 var(--color-accent-dark);
 }
 
 .draft-slot.team-slot {
-    width: 90px;
-    height: 90px;
+    width: 110px;
+    height: 110px;
 }
 
 .draft-slot.team-slot .pokemon-sprite {
-    width: 70px;
-    height: 70px;
+    width: 86px;
+    height: 86px;
 }
 
 .pokeball-icon {
-    width: 60px;
-    height: 60px;
+    width: 74px;
+    height: 74px;
     border-radius: 50%;
     background:
         linear-gradient(var(--color-accent) 0 46%, var(--color-border) 46% 54%, var(--color-panel) 54% 100%);
@@ -449,8 +567,8 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     background-color: var(--color-panel);
     border: 4px solid var(--color-border);
     border-radius: 50%;
@@ -462,8 +580,8 @@ body {
     border: 4px solid var(--color-border);
     background-color: var(--color-panel);
     box-shadow: 0 0 0 4px var(--color-bg), 6px 6px 0 rgba(0, 0, 0, 0.4);
-    padding: 20px;
-    min-height: 90px;
+    padding: 26px;
+    min-height: 110px;
     display: flex;
     align-items: center;
 }
@@ -473,13 +591,13 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
+    gap: 16px;
 }
 
 #dialogue-text {
     margin: 0;
     color: var(--color-bg);
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.8;
     word-break: break-word;
 }
@@ -487,26 +605,49 @@ body {
 .dialogue-actions {
     align-self: flex-end;
     display: flex;
-    gap: 12px;
+    gap: 14px;
 }
 
 #next-turn-btn,
 #export-btn {
-    font-size: 11px;
-    padding: 10px 18px;
+    font-size: 13px;
+    padding: 12px 20px;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
     .app-title {
-        font-size: 20px;
+        font-size: 24px;
     }
 
     .draft-slot {
-        width: 80px;
-        height: 80px;
+        width: 100px;
+        height: 100px;
+    }
+
+    .pokemon-sprite {
+        width: 76px;
+        height: 76px;
     }
 
     .lab-desk {
-        gap: 16px;
+        gap: 20px;
+        padding: 24px 12px;
+    }
+
+    #app-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .team-panel {
+        flex: 1 1 auto;
+        width: 100%;
+        max-width: 700px;
+        align-self: auto;
+    }
+
+    .team-slots {
+        grid-template-columns: repeat(6, 1fr);
+        margin: 0;
     }
 }
