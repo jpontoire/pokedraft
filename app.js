@@ -27,6 +27,7 @@ let currentTurn = 0;
 let pickerIsHostThisTurn = null;
 let currentStarterIds = [];
 let pickedSlotIndex = null;
+let allSlotsRevealed = false;
 let hostTeam = [];
 let guestTeam = [];
 let hostRoomId = null;
@@ -209,13 +210,15 @@ function updateTurnInfo() {
 
 function buildSlotHTML(pokemonId, index) {
     const pokemon = getPokemonById(pokemonId);
-    const isRevealed = !amIPicker() || pickedSlotIndex === index;
-    const isClickable = amIPicker() && pickedSlotIndex === null;
     const wasPickedHere = pickedSlotIndex === index;
+    const wasPassedOver = allSlotsRevealed && pickedSlotIndex !== null && !wasPickedHere;
+    const isRevealed = !amIPicker() || wasPickedHere || allSlotsRevealed;
+    const isClickable = amIPicker() && pickedSlotIndex === null;
 
     const slotClasses = ['draft-slot'];
     if (isClickable) slotClasses.push('clickable');
     if (wasPickedHere) slotClasses.push('selected');
+    if (wasPassedOver) slotClasses.push('not-chosen');
 
     const clueHTML = buildClueHTML(pokemon);
 
@@ -227,6 +230,7 @@ function buildSlotHTML(pokemonId, index) {
                     <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemon.names.english}">
                 </div>
                 ${wasPickedHere ? clueHTML : ''}
+                ${wasPassedOver ? '<p class="slot-clue-label not-chosen-label">Not Chosen</p>' : ''}
             </div>
         `;
     }
@@ -288,9 +292,17 @@ function finalizePick(index) {
 
     if (currentTurn >= MAX_TURNS) {
         endDraft();
-    } else {
-        nextTurnBtn.classList.remove('hidden');
+        return;
     }
+
+    nextTurnBtn.classList.remove('hidden');
+
+    const startersAtPick = currentStarterIds;
+    setTimeout(() => {
+        if (currentStarterIds !== startersAtPick) return;
+        allSlotsRevealed = true;
+        renderSlots();
+    }, 800);
 }
 
 function handleSlotClick(index) {
@@ -316,6 +328,7 @@ function startTurn(data) {
     pickerIsHostThisTurn = data.pickerIsHost;
     currentStarterIds = data.starterIds;
     pickedSlotIndex = null;
+    allSlotsRevealed = false;
 
     showGameScreen();
     nextTurnBtn.classList.add('hidden');

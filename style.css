@@ -401,6 +401,20 @@ body {
     animation: flip-reveal 0.4s linear, slot-glow 0.8s ease-in-out 2;
 }
 
+/* Slots revealed after the pick, but not the one chosen */
+.draft-slot.not-chosen {
+    opacity: 0.5;
+}
+
+.draft-slot.not-chosen .pokemon-sprite {
+    filter: grayscale(1);
+}
+
+.not-chosen-label {
+    color: #999;
+    letter-spacing: 1px;
+}
+
 /* Final team showcase */
 .lab-desk.team-grid {
     display: grid;
