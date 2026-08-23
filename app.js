@@ -131,6 +131,10 @@ function getClueText(pokemon) {
             return `Height: ${(pokemon.attributes.height / 10).toFixed(1)}m / Weight: ${(pokemon.attributes.weight / 10).toFixed(1)}kg`;
         case 'pokedex_num':
             return `#${String(pokemon.id).padStart(4, '0')}`;
+        case 'total_stats': {
+            const { hp, attack, defense, special_attack, special_defense, speed } = pokemon.stats;
+            return `Base Stat Total: ${hp + attack + defense + special_attack + special_defense + speed}`;
+        }
         case 'types':
         default:
             return formatTypes(pokemon.types);
@@ -194,10 +198,15 @@ function buildSlotHTML(pokemonId, index) {
     const pokemon = getPokemonById(pokemonId);
     const isRevealed = !amIPicker() || pickedSlotIndex === index;
     const isClickable = amIPicker() && pickedSlotIndex === null;
+    const wasPickedHere = pickedSlotIndex === index;
 
     const slotClasses = ['draft-slot'];
     if (isClickable) slotClasses.push('clickable');
-    if (pickedSlotIndex === index) slotClasses.push('selected');
+    if (wasPickedHere) slotClasses.push('selected');
+
+    const clueHTML = gameSettings.clueType === 'base_stats'
+        ? buildStatBarsHTML(pokemon)
+        : `<p class="slot-clue-label">${getClueText(pokemon)}</p>`;
 
     if (isRevealed) {
         const tooltip = `${pokemon.names.english} (#${pokemon.id})`;
@@ -206,13 +215,10 @@ function buildSlotHTML(pokemonId, index) {
                 <div class="${slotClasses.join(' ')}" data-slot="${index}" data-tooltip="${tooltip}">
                     <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemon.names.english}">
                 </div>
+                ${wasPickedHere ? clueHTML : ''}
             </div>
         `;
     }
-
-    const clueHTML = gameSettings.clueType === 'base_stats'
-        ? buildStatBarsHTML(pokemon)
-        : `<p class="slot-clue-label">${getClueText(pokemon)}</p>`;
 
     return `
         <div class="slot-wrapper">
