@@ -339,6 +339,19 @@ body {
     background-color: #5cb85c;
 }
 
+/* Audio clue */
+.play-cry-btn {
+    font-size: 9px;
+}
+
+.play-cry-btn:disabled {
+    background-color: #555;
+    color: #999;
+    cursor: not-allowed;
+    box-shadow: 3px 3px 0 var(--color-border);
+    pointer-events: none;
+}
+
 /* Tooltip: shown only on revealed slots (Guide, or a Picker's chosen slot) */
 .draft-slot[data-tooltip] {
     cursor: help;

@@ -178,6 +178,19 @@ function buildStatBarsHTML(pokemon) {
     `;
 }
 
+function buildCryClueHTML(pokemon) {
+    if (!pokemon.media.cry) {
+        return `<button type="button" class="pixel-btn small-btn play-cry-btn" disabled>Audio corrupted</button>`;
+    }
+    return `<button type="button" class="pixel-btn small-btn play-cry-btn" data-cry-url="${pokemon.media.cry}">[ ▶ Play Cry ]</button>`;
+}
+
+function buildClueHTML(pokemon) {
+    if (gameSettings.clueType === 'base_stats') return buildStatBarsHTML(pokemon);
+    if (gameSettings.clueType === 'cry') return buildCryClueHTML(pokemon);
+    return `<p class="slot-clue-label">${getClueText(pokemon)}</p>`;
+}
+
 function amIPicker() {
     return (isHost && pickerIsHostThisTurn) || (!isHost && !pickerIsHostThisTurn);
 }
@@ -204,9 +217,7 @@ function buildSlotHTML(pokemonId, index) {
     if (isClickable) slotClasses.push('clickable');
     if (wasPickedHere) slotClasses.push('selected');
 
-    const clueHTML = gameSettings.clueType === 'base_stats'
-        ? buildStatBarsHTML(pokemon)
-        : `<p class="slot-clue-label">${getClueText(pokemon)}</p>`;
+    const clueHTML = buildClueHTML(pokemon);
 
     if (isRevealed) {
         const tooltip = `${pokemon.names.english} (#${pokemon.id})`;
@@ -336,6 +347,13 @@ function startDraft() {
 }
 
 labDesk.addEventListener('click', (event) => {
+    const cryBtn = event.target.closest('.play-cry-btn');
+    if (cryBtn) {
+        if (cryBtn.disabled) return;
+        new Audio(cryBtn.dataset.cryUrl).play();
+        return;
+    }
+
     const slotEl = event.target.closest('.draft-slot.clickable');
     if (!slotEl) return;
     handleSlotClick(Number(slotEl.dataset.slot));
