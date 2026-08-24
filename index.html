@@ -3,125 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PokeDraft</title>
+    <title>Poke Game Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <h1 class="app-title">PokeDraft</h1>
+    <div id="portal">
+        <h1 class="portal-title">PokeDraft Portal</h1>
+        <p class="portal-subtitle">Choose a game to play</p>
 
-        <div id="app-layout">
-            <div id="my-team-panel" class="team-panel side-panel hidden">
-                <p class="team-panel-title">Your Team</p>
-                <div id="my-team-slots" class="team-slots"></div>
-            </div>
-
-            <div id="main-column">
-                <!-- Lobby Screen -->
-                <section id="lobby-screen" class="screen">
-                    <div class="lobby-menu">
-                        <button id="host-btn" class="pixel-btn">Host Game</button>
-                        <button id="join-btn" class="pixel-btn">Join Game</button>
-                        <div id="join-form" class="join-form hidden">
-                            <input id="join-room-input" type="text" placeholder="Room ID" class="pixel-input">
-                            <button id="join-confirm-btn" class="pixel-btn">Connect</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Settings Screen -->
-                <section id="settings-screen" class="screen hidden">
-                    <div id="host-settings-form" class="settings-form hidden">
-                        <h2 class="settings-title">Game Settings</h2>
-
-                        <div class="settings-group">
-                            <p class="settings-label">Allowed Generations</p>
-                            <div id="generation-checkboxes" class="generation-checkboxes">
-                                <label class="checkbox-option"><input type="checkbox" value="1" checked> Gen 1</label>
-                                <label class="checkbox-option"><input type="checkbox" value="2" checked> Gen 2</label>
-                                <label class="checkbox-option"><input type="checkbox" value="3" checked> Gen 3</label>
-                                <label class="checkbox-option"><input type="checkbox" value="4" checked> Gen 4</label>
-                                <label class="checkbox-option"><input type="checkbox" value="5" checked> Gen 5</label>
-                                <label class="checkbox-option"><input type="checkbox" value="6" checked> Gen 6</label>
-                                <label class="checkbox-option"><input type="checkbox" value="7" checked> Gen 7</label>
-                                <label class="checkbox-option"><input type="checkbox" value="8" checked> Gen 8</label>
-                                <label class="checkbox-option"><input type="checkbox" value="9" checked> Gen 9</label>
-                            </div>
-                        </div>
-
-                        <div class="settings-group">
-                            <p class="settings-label">Legendaries Settings</p>
-                            <div class="stat-input-row">
-                                <label>Min <input type="number" id="legendary-min" class="pixel-number-input" min="0" max="6" value="0"></label>
-                                <label>Max <input type="number" id="legendary-max" class="pixel-number-input" min="0" max="6" value="1"></label>
-                            </div>
-                            <label class="checkbox-option"><input type="checkbox" id="symmetrical-legendaries" checked> Symmetrical Legendaries</label>
-                        </div>
-
-                        <div class="settings-group">
-                            <p class="settings-label">Mythicals Settings</p>
-                            <div class="stat-input-row">
-                                <label>Min <input type="number" id="mythical-min" class="pixel-number-input" min="0" max="6" value="0"></label>
-                                <label>Max <input type="number" id="mythical-max" class="pixel-number-input" min="0" max="6" value="0"></label>
-                            </div>
-                            <label class="checkbox-option"><input type="checkbox" id="symmetrical-mythicals" checked> Symmetrical Mythicals</label>
-                        </div>
-
-                        <div class="settings-group">
-                            <label for="clue-select" class="settings-label">Blind Picker Clue</label>
-                            <select id="clue-select" class="pixel-select">
-                                <option value="types">Types</option>
-                                <option value="color">Color</option>
-                                <option value="shape">Shape</option>
-                                <option value="height_weight">Height / Weight</option>
-                                <option value="pokedex_num">Pokedex Number</option>
-                                <option value="base_stats">Base Stats</option>
-                                <option value="total_stats">Total Base Stats</option>
-                                <option value="cry">Pokémon Cry (Audio)</option>
-                            </select>
-                        </div>
-
-                        <button id="start-draft-btn" class="pixel-btn">Start Draft</button>
-                    </div>
-
-                    <div id="guest-settings-loading" class="settings-loading hidden">
-                        <div class="loading-pokeball"></div>
-                    </div>
-                </section>
-
-                <!-- Game Screen -->
-                <section id="game-screen" class="screen hidden">
-                    <div id="room-id-bar" class="room-id-bar hidden">
-                        <span id="room-id-text" class="room-id-text"></span>
-                        <button id="copy-id-btn" class="pixel-btn small-btn">Copy</button>
-                    </div>
-                    <p id="turn-info" class="turn-info"></p>
-                    <div id="lab-desk" class="lab-desk"></div>
-                </section>
-
-                <!-- Dialogue Box -->
-                <footer id="dialogue-box" class="dialogue-box">
-                    <div class="dialogue-content">
-                        <p id="dialogue-text">Welcome, Trainer! Host or join a game to begin.</p>
-                        <div class="dialogue-actions">
-                            <button id="next-turn-btn" class="pixel-btn hidden">Next Turn</button>
-                            <button id="export-btn" class="pixel-btn hidden">Export Team to Showdown</button>
-                        </div>
-                    </div>
-                </footer>
-            </div>
-
-            <div id="opponent-team-panel" class="team-panel side-panel hidden">
-                <p class="team-panel-title">Opponent Team</p>
-                <div id="opponent-team-slots" class="team-slots"></div>
-            </div>
+        <div class="portal-menu">
+            <a href="./draft/" class="pixel-btn portal-btn">Play PokeDraft</a>
+            <a href="./zoom/" class="pixel-btn portal-btn">Play PokeZoom</a>
         </div>
     </div>
-
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    <script src="app.js"></script>
 </body>
 </html>
