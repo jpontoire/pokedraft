@@ -92,7 +92,7 @@ function showSettingsScreen() {
 
 async function loadPokemonDatabase() {
     try {
-        const response = await fetch('./data/pokemon.json');
+        const response = await fetch('../data/pokemon.json');
         pokemonDatabase = await response.json();
         console.log(`Loaded ${pokemonDatabase.length} Pokemon from the database.`);
     } catch (error) {

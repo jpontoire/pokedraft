@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeZoom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <h1 class="app-title">PokeZoom</h1>
+
+        <div class="zoom-frame">
+            <img id="sprite-image" class="sprite-image" src="" alt="Mystery Pokemon">
+        </div>
+
+        <form id="guess-form" class="guess-form">
+            <input id="guess-input" class="pixel-input" type="text" list="pokemon-names" placeholder="Who's that Pokemon?" autocomplete="off">
+            <datalist id="pokemon-names"></datalist>
+            <button type="submit" id="submit-btn" class="pixel-btn">Submit</button>
+        </form>
+
+        <button id="next-btn" class="pixel-btn hidden">Next Pokemon</button>
+
+        <footer id="dialogue-box" class="dialogue-box">
+            <p id="dialogue-text">Loading Pokemon data...</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

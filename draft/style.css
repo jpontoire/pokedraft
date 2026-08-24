@@ -1,0 +1,821 @@
+:root {
+    --color-bg: #202020;
+    --color-panel: #f8f8f0;
+    --color-border: #202020;
+    --color-accent: #e3350d;
+    --color-accent-dark: #a02008;
+    --color-text-light: #f8f8f0;
+    --color-slot: #3b4cca;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--color-text-light);
+    font-family: 'Press Start 2P', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+#app {
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+#app-layout {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 32px;
+}
+
+#main-column {
+    flex: 0 1 700px;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.app-title {
+    text-align: center;
+    font-size: 36px;
+    color: var(--color-accent);
+    text-shadow: 3px 3px 0 var(--color-accent-dark);
+    letter-spacing: 2px;
+    margin: 16px 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Lobby Screen */
+.lobby-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.join-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.pixel-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    padding: 16px 28px;
+    background-color: var(--color-accent);
+    color: var(--color-text-light);
+    border: 4px solid var(--color-border);
+    box-shadow: 4px 4px 0 var(--color-border);
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.pixel-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--color-border);
+}
+
+.pixel-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--color-border);
+}
+
+.pixel-input {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    padding: 12px;
+    border: 4px solid var(--color-border);
+    background-color: var(--color-panel);
+    color: var(--color-bg);
+    text-align: center;
+    width: 260px;
+    max-width: 100%;
+}
+
+/* Settings Screen */
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 28px;
+    background-color: #2c2c2c;
+    border: 4px solid var(--color-border);
+}
+
+.settings-title {
+    margin: 0;
+    font-size: 16px;
+    text-align: center;
+    color: var(--color-accent);
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-label {
+    margin: 0;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+.generation-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 12px 20px;
+}
+
+.stat-input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.stat-input-row label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+}
+
+.pixel-number-input {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    padding: 8px;
+    border: 4px solid var(--color-border);
+    background-color: var(--color-panel);
+    color: var(--color-bg);
+    width: 60px;
+    text-align: center;
+}
+
+.checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.checkbox-option input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.pixel-select {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    padding: 12px;
+    border: 4px solid var(--color-border);
+    background-color: var(--color-panel);
+    color: var(--color-bg);
+    cursor: pointer;
+    width: 100%;
+    max-width: 320px;
+}
+
+#start-draft-btn {
+    align-self: center;
+    margin-top: 10px;
+}
+
+.settings-loading {
+    display: flex;
+    justify-content: center;
+    padding: 56px 0;
+}
+
+.loading-pokeball {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(var(--color-accent) 0 46%, var(--color-border) 46% 54%, var(--color-panel) 54% 100%);
+    border: 4px solid var(--color-border);
+    animation: loading-bounce 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes loading-bounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-16px); }
+}
+
+/* Game Screen */
+.room-id-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-size: 12px;
+}
+
+.room-id-text {
+    letter-spacing: 1px;
+    word-break: break-all;
+}
+
+.small-btn {
+    font-size: 10px;
+    padding: 10px 14px;
+    box-shadow: 3px 3px 0 var(--color-border);
+}
+
+.small-btn:hover {
+    box-shadow: 1px 1px 0 var(--color-border);
+}
+
+.small-btn:active {
+    box-shadow: 0 0 0 var(--color-border);
+}
+
+.turn-info {
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--color-text-light);
+    margin: 0;
+}
+
+.team-panel {
+    flex: 1 1 200px;
+    max-width: 300px;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 16px;
+    background-color: #2c2c2c;
+    border: 4px solid var(--color-border);
+}
+
+.team-panel-title {
+    margin: 0;
+    font-size: 13px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.team-slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin: auto 0;
+    width: 100%;
+}
+
+.mini-team-slot {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: var(--color-slot);
+    border: 3px solid var(--color-border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mini-team-slot.empty {
+    background-color: transparent;
+    border-style: dashed;
+    opacity: 0.4;
+}
+
+.mini-team-sprite {
+    width: 80%;
+    height: 80%;
+    image-rendering: pixelated;
+    object-fit: contain;
+}
+
+.lab-desk {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 40px 20px;
+    background-color: #2c2c2c;
+    border: 4px solid var(--color-border);
+    flex-wrap: wrap;
+}
+
+.slot-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.draft-slot {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    background-color: var(--color-slot);
+    border: 4px solid var(--color-border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+    transition: transform 0.1s ease;
+}
+
+.draft-slot.clickable {
+    cursor: pointer;
+}
+
+.draft-slot.clickable:hover {
+    animation: slot-shake 0.3s ease-in-out infinite;
+}
+
+@keyframes slot-shake {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-4deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(4deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.pokemon-sprite {
+    width: 112px;
+    height: 112px;
+    image-rendering: pixelated;
+    object-fit: contain;
+}
+
+.slot-clue-label {
+    margin: 0;
+    font-size: 11px;
+    text-align: center;
+    color: var(--color-text-light);
+    min-height: 14px;
+}
+
+/* Base Stats clue */
+.stat-block {
+    width: 230px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat-block-title {
+    margin: 0 0 4px;
+    font-size: 11px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.stat-row {
+    display: grid;
+    grid-template-columns: 64px 26px 1fr;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-label,
+.stat-value {
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+.stat-value {
+    text-align: right;
+}
+
+.stat-bar-track {
+    height: 10px;
+    background-color: #1a1a1a;
+    border: 2px solid var(--color-border);
+}
+
+.stat-bar-fill {
+    height: 100%;
+}
+
+.stat-bar-fill.stat-low {
+    background-color: #f4762b;
+}
+
+.stat-bar-fill.stat-mid {
+    background-color: #f6c445;
+}
+
+.stat-bar-fill.stat-high {
+    background-color: #5cb85c;
+}
+
+/* Audio clue */
+.play-cry-btn {
+    font-size: 10px;
+}
+
+.play-cry-btn:disabled {
+    background-color: #555;
+    color: #999;
+    cursor: not-allowed;
+    box-shadow: 3px 3px 0 var(--color-border);
+    pointer-events: none;
+}
+
+/* Tooltip: shown on revealed slots (Guide, a Picker's chosen slot, or a team panel entry) */
+[data-tooltip] {
+    cursor: help;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%) scale(0.9);
+    background-color: var(--color-panel);
+    color: var(--color-bg);
+    border: 3px solid var(--color-border);
+    padding: 7px 9px;
+    font-size: 10px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 10;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+/* Selection feedback */
+@keyframes slot-glow {
+    0%, 100% { box-shadow: 0 0 0 rgba(255, 215, 0, 0); }
+    50% { box-shadow: 0 0 16px 6px rgba(255, 215, 0, 0.8); }
+}
+
+.draft-slot.selected {
+    border-color: gold;
+    animation: slot-glow 0.8s ease-in-out 2;
+}
+
+@keyframes flip-reveal {
+    0% { transform: scaleX(1); }
+    50% { transform: scaleX(0); }
+    100% { transform: scaleX(1); }
+}
+
+.draft-slot.flipping {
+    animation: flip-reveal 0.4s linear, slot-glow 0.8s ease-in-out 2;
+}
+
+/* Slots revealed after the pick, but not the one chosen */
+.draft-slot.not-chosen {
+    opacity: 0.5;
+}
+
+.draft-slot.not-chosen .pokemon-sprite {
+    filter: grayscale(1);
+}
+
+.not-chosen-label {
+    color: #999;
+    letter-spacing: 1px;
+}
+
+/* Final team showcase */
+.lab-desk.showcase {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.showcase-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.showcase-team-title {
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-align: center;
+    color: var(--color-text-light);
+}
+
+.showcase-team.mine .showcase-team-title {
+    color: gold;
+}
+
+.showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.showcase-team.mine .draft-slot.team-slot {
+    border-color: gold;
+    box-shadow: 0 0 12px 2px rgba(255, 215, 0, 0.5);
+}
+
+.vs-badge {
+    width: 70px;
+    height: 70px;
+    flex-shrink: 0;
+    background-color: var(--color-accent);
+    border: 4px solid var(--color-border);
+    transform: rotate(45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vs-badge span {
+    display: block;
+    transform: rotate(-45deg);
+    font-size: 16px;
+    color: var(--color-text-light);
+    text-shadow: 2px 2px 0 var(--color-accent-dark);
+}
+
+.draft-slot.team-slot {
+    width: 110px;
+    height: 110px;
+}
+
+.draft-slot.team-slot .pokemon-sprite {
+    width: 86px;
+    height: 86px;
+}
+
+.pokeball-icon {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background:
+        linear-gradient(var(--color-accent) 0 46%, var(--color-border) 46% 54%, var(--color-panel) 54% 100%);
+    border: 4px solid var(--color-border);
+    position: relative;
+}
+
+.pokeball-icon::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background-color: var(--color-panel);
+    border: 4px solid var(--color-border);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Dialogue Box */
+.dialogue-box {
+    border: 4px solid var(--color-border);
+    background-color: var(--color-panel);
+    box-shadow: 0 0 0 4px var(--color-bg), 6px 6px 0 rgba(0, 0, 0, 0.4);
+    padding: 26px;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+}
+
+.dialogue-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+#dialogue-text {
+    margin: 0;
+    color: var(--color-bg);
+    font-size: 14px;
+    line-height: 1.8;
+    word-break: break-word;
+}
+
+.dialogue-actions {
+    align-self: flex-end;
+    display: flex;
+    gap: 14px;
+}
+
+#next-turn-btn,
+#export-btn {
+    font-size: 13px;
+    padding: 12px 20px;
+}
+
+/* Tablet landscape / small laptop: keep the 3-column layout but tighten it up */
+@media (max-width: 1024px) {
+    #app {
+        gap: 20px;
+    }
+
+    #app-layout {
+        gap: 20px;
+    }
+
+    .team-panel {
+        flex-basis: 160px;
+        max-width: 220px;
+        padding: 18px 12px;
+    }
+
+    .draft-slot {
+        width: 130px;
+        height: 130px;
+    }
+
+    .pokemon-sprite {
+        width: 98px;
+        height: 98px;
+    }
+
+    .lab-desk {
+        gap: 24px;
+        padding: 28px 16px;
+    }
+}
+
+/* Tablet portrait / large phone: stack the side panels above/below the main column */
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .app-title {
+        font-size: 26px;
+        margin: 8px 0;
+    }
+
+    #app {
+        gap: 18px;
+    }
+
+    #app-layout {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 18px;
+    }
+
+    #main-column {
+        flex-basis: auto;
+        max-width: none;
+        gap: 18px;
+    }
+
+    .team-panel {
+        flex: 1 1 auto;
+        width: 100%;
+        max-width: none;
+        align-self: auto;
+    }
+
+    .team-slots {
+        grid-template-columns: repeat(6, 1fr);
+        margin: 0;
+    }
+
+    .draft-slot {
+        width: 110px;
+        height: 110px;
+    }
+
+    .pokemon-sprite {
+        width: 84px;
+        height: 84px;
+    }
+
+    .lab-desk {
+        gap: 20px;
+        padding: 24px 14px;
+    }
+
+    .room-id-bar {
+        flex-wrap: wrap;
+    }
+
+    .dialogue-box {
+        padding: 18px;
+        min-height: auto;
+    }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+    .app-title {
+        font-size: 20px;
+    }
+
+    .settings-form {
+        padding: 18px;
+        gap: 18px;
+    }
+
+    .generation-checkboxes {
+        grid-template-columns: repeat(2, auto);
+    }
+
+    .draft-slot {
+        width: 88px;
+        height: 88px;
+    }
+
+    .pokemon-sprite {
+        width: 66px;
+        height: 66px;
+    }
+
+    .lab-desk {
+        gap: 14px;
+        padding: 18px 10px;
+    }
+
+    .stat-row {
+        grid-template-columns: 50px 20px 1fr;
+        gap: 6px;
+    }
+
+    .dialogue-actions {
+        align-self: stretch;
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #next-turn-btn,
+    #export-btn {
+        width: 100%;
+    }
+
+    .pixel-btn {
+        font-size: 13px;
+        padding: 12px 16px;
+    }
+
+    .small-btn {
+        font-size: 9px;
+        padding: 8px 10px;
+    }
+
+    .room-id-text {
+        font-size: 10px;
+    }
+
+    /* Final team showcase: stack the two teams instead of squeezing them side by side */
+    .lab-desk.showcase {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .vs-badge {
+        width: 54px;
+        height: 54px;
+    }
+
+    .vs-badge span {
+        font-size: 12px;
+    }
+
+    .draft-slot.team-slot {
+        width: 78px;
+        height: 78px;
+    }
+
+    .draft-slot.team-slot .pokemon-sprite {
+        width: 60px;
+        height: 60px;
+    }
+}
