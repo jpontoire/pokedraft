@@ -422,6 +422,7 @@ function startTurn(data) {
     allSlotsRevealed = false;
 
     showGameScreen();
+    roomIdBar.classList.add('hidden');
     nextTurnBtn.classList.add('hidden');
     renderSlots();
     updateTurnInfo();

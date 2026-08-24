@@ -111,6 +111,7 @@ body {
     color: var(--color-bg);
     text-align: center;
     width: 260px;
+    max-width: 100%;
 }
 
 /* Settings Screen */
@@ -194,6 +195,8 @@ body {
     background-color: var(--color-panel);
     color: var(--color-bg);
     cursor: pointer;
+    width: 100%;
+    max-width: 320px;
 }
 
 #start-draft-btn {
@@ -374,6 +377,7 @@ body {
 /* Base Stats clue */
 .stat-block {
     width: 230px;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -632,40 +636,186 @@ body {
     padding: 12px 20px;
 }
 
-@media (max-width: 640px) {
-    .app-title {
-        font-size: 24px;
+/* Tablet landscape / small laptop: keep the 3-column layout but tighten it up */
+@media (max-width: 1024px) {
+    #app {
+        gap: 20px;
+    }
+
+    #app-layout {
+        gap: 20px;
+    }
+
+    .team-panel {
+        flex-basis: 160px;
+        max-width: 220px;
+        padding: 18px 12px;
     }
 
     .draft-slot {
-        width: 100px;
-        height: 100px;
+        width: 130px;
+        height: 130px;
     }
 
     .pokemon-sprite {
-        width: 76px;
-        height: 76px;
+        width: 98px;
+        height: 98px;
     }
 
     .lab-desk {
-        gap: 20px;
-        padding: 24px 12px;
+        gap: 24px;
+        padding: 28px 16px;
+    }
+}
+
+/* Tablet portrait / large phone: stack the side panels above/below the main column */
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .app-title {
+        font-size: 26px;
+        margin: 8px 0;
+    }
+
+    #app {
+        gap: 18px;
     }
 
     #app-layout {
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
+        gap: 18px;
+    }
+
+    #main-column {
+        flex-basis: auto;
+        max-width: none;
+        gap: 18px;
     }
 
     .team-panel {
         flex: 1 1 auto;
         width: 100%;
-        max-width: 700px;
+        max-width: none;
         align-self: auto;
     }
 
     .team-slots {
         grid-template-columns: repeat(6, 1fr);
         margin: 0;
+    }
+
+    .draft-slot {
+        width: 110px;
+        height: 110px;
+    }
+
+    .pokemon-sprite {
+        width: 84px;
+        height: 84px;
+    }
+
+    .lab-desk {
+        gap: 20px;
+        padding: 24px 14px;
+    }
+
+    .room-id-bar {
+        flex-wrap: wrap;
+    }
+
+    .dialogue-box {
+        padding: 18px;
+        min-height: auto;
+    }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+    .app-title {
+        font-size: 20px;
+    }
+
+    .settings-form {
+        padding: 18px;
+        gap: 18px;
+    }
+
+    .generation-checkboxes {
+        grid-template-columns: repeat(2, auto);
+    }
+
+    .draft-slot {
+        width: 88px;
+        height: 88px;
+    }
+
+    .pokemon-sprite {
+        width: 66px;
+        height: 66px;
+    }
+
+    .lab-desk {
+        gap: 14px;
+        padding: 18px 10px;
+    }
+
+    .stat-row {
+        grid-template-columns: 50px 20px 1fr;
+        gap: 6px;
+    }
+
+    .dialogue-actions {
+        align-self: stretch;
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #next-turn-btn,
+    #export-btn {
+        width: 100%;
+    }
+
+    .pixel-btn {
+        font-size: 13px;
+        padding: 12px 16px;
+    }
+
+    .small-btn {
+        font-size: 9px;
+        padding: 8px 10px;
+    }
+
+    .room-id-text {
+        font-size: 10px;
+    }
+
+    /* Final team showcase: stack the two teams instead of squeezing them side by side */
+    .lab-desk.showcase {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .vs-badge {
+        width: 54px;
+        height: 54px;
+    }
+
+    .vs-badge span {
+        font-size: 12px;
+    }
+
+    .draft-slot.team-slot {
+        width: 78px;
+        height: 78px;
+    }
+
+    .draft-slot.team-slot .pokemon-sprite {
+        width: 60px;
+        height: 60px;
     }
 }
