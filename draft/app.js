@@ -1,5 +1,158 @@
 // app.js
 
+// Translation dictionary: static UI strings, Pokemon types, colors, shapes and stats.
+const i18n = {
+    // Static UI
+    hostGame: { en: 'Host Game', fr: 'Héberger une Partie' },
+    joinGame: { en: 'Join Game', fr: 'Rejoindre une Partie' },
+    roomIdPlaceholder: { en: 'Room ID', fr: 'ID de la Partie' },
+    connect: { en: 'Connect', fr: 'Se Connecter' },
+    gameSettings: { en: 'Game Settings', fr: 'Paramètres de la Partie' },
+    allowedGenerations: { en: 'Allowed Generations', fr: 'Générations Autorisées' },
+    gen: { en: 'Gen', fr: 'Gén' },
+    legendariesSettings: { en: 'Legendaries Settings', fr: 'Paramètres des Légendaires' },
+    mythicalsSettings: { en: 'Mythicals Settings', fr: 'Paramètres des Mythiques' },
+    min: { en: 'Min', fr: 'Min' },
+    max: { en: 'Max', fr: 'Max' },
+    symmetricalLegendaries: { en: 'Symmetrical Legendaries', fr: 'Légendaires Symétriques' },
+    symmetricalMythicals: { en: 'Symmetrical Mythicals', fr: 'Mythiques Symétriques' },
+    blindPickerClue: { en: 'Blind Picker Clue', fr: 'Indice du Sélectionneur Aveugle' },
+    clueTypes: { en: 'Types', fr: 'Types' },
+    clueColor: { en: 'Color', fr: 'Couleur' },
+    clueShape: { en: 'Shape', fr: 'Forme' },
+    clueHeightWeight: { en: 'Height / Weight', fr: 'Taille / Poids' },
+    cluePokedexNum: { en: 'Pokedex Number', fr: 'Numéro Pokédex' },
+    clueBaseStats: { en: 'Base Stats', fr: 'Statistiques de Base' },
+    clueTotalStats: { en: 'Total Base Stats', fr: 'Total des Statistiques' },
+    clueCry: { en: 'Pokémon Cry (Audio)', fr: 'Cri du Pokémon (Audio)' },
+    startDraft: { en: 'Start Draft', fr: 'Lancer la Draft' },
+    yourTeam: { en: 'Your Team', fr: 'Votre Équipe' },
+    opponentTeam: { en: 'Opponent Team', fr: 'Équipe Adverse' },
+    yourTeamYou: { en: 'Your Team (You)', fr: 'Votre Équipe (Vous)' },
+    copy: { en: 'Copy', fr: 'Copier' },
+    copied: { en: 'Copied!', fr: 'Copié !' },
+    nextTurn: { en: 'Next Turn', fr: 'Tour Suivant' },
+    exportTeam: { en: 'Export Team to Showdown', fr: 'Exporter vers Showdown' },
+    notChosen: { en: 'Not Chosen', fr: 'Non Choisi' },
+    audioCorrupted: { en: 'Audio corrupted', fr: 'Audio corrompu' },
+    playCry: { en: '[ ▶ Play Cry ]', fr: '[ ▶ Écouter le Cri ]' },
+    draftComplete: { en: 'Draft complete!', fr: 'Draft terminée !' },
+    heightLabel: { en: 'Height', fr: 'Taille' },
+    weightLabel: { en: 'Weight', fr: 'Poids' },
+    guide: { en: 'Guide', fr: 'Guide' },
+    blindPicker: { en: 'Blind Picker', fr: 'Sélectionneur Aveugle' },
+    turnInfoTemplate: { en: 'Turn {turn} / {max} — You are the {role}', fr: 'Tour {turn} / {max} — Vous êtes le {role}' },
+    roomIdLabel: { en: 'Room ID: {id}', fr: 'ID de la Partie : {id}' },
+
+    // Dialogue box messages
+    dlgWelcome: { en: 'Welcome, Trainer! Host or join a game to begin.', fr: 'Bienvenue, Dresseur ! Hébergez ou rejoignez une partie pour commencer.' },
+    dlgLoadingDb: { en: 'Still loading the Pokemon database, please wait...', fr: 'Chargement de la base de données en cours, veuillez patienter...' },
+    dlgErrorLoadingDb: { en: 'Error: could not load the Pokemon database.', fr: 'Erreur : impossible de charger la base de données.' },
+    dlgRoomCreated: { en: 'Room created! Share this ID with your friend: {id}', fr: 'Partie créée ! Partagez cet ID avec votre ami : {id}' },
+    dlgPlayerJoined: { en: 'Player joined! Establishing connection...', fr: 'Un joueur a rejoint ! Établissement de la connexion...' },
+    dlgConnectingToHost: { en: 'Connecting to host...', fr: "Connexion à l'hôte..." },
+    dlgConnectionError: { en: 'A connection error occurred.', fr: 'Une erreur de connexion est survenue.' },
+    dlgPlayerDisconnected: { en: 'The other player disconnected.', fr: "L'autre joueur s'est déconnecté." },
+    dlgConfigureSettings: { en: 'Configure the game settings, then start the draft.', fr: 'Configurez les paramètres, puis lancez la draft.' },
+    dlgHostConfiguring: { en: 'Host is configuring game settings...', fr: "L'hôte configure les paramètres de la partie..." },
+    dlgSelectGeneration: { en: 'Select at least one generation to continue.', fr: 'Sélectionnez au moins une génération pour continuer.' },
+    dlgChooseStarter: { en: 'Choose your starter!', fr: 'Choisissez votre Pokémon !' },
+    dlgGuidePartner: { en: 'Guide your partner to the best pick!', fr: 'Guidez votre partenaire vers le meilleur choix !' },
+    dlgPokemonSelected: { en: '{name} was selected!', fr: '{name} a été choisi !' },
+    dlgWaitingNextTurn: { en: 'Waiting for the next turn...', fr: 'En attente du tour suivant...' },
+    dlgDraftCompleteReady: { en: 'Draft complete! Your team is ready.', fr: 'Draft terminée ! Votre équipe est prête.' },
+
+    // Alerts
+    alertLegendaryMinMax: { en: 'Invalid settings! Min Legendaries cannot be greater than Max Legendaries.', fr: 'Paramètres invalides ! Le minimum de Légendaires ne peut pas dépasser le maximum.' },
+    alertMythicalMinMax: { en: 'Invalid settings! Min Mythicals cannot be greater than Max Mythicals.', fr: 'Paramètres invalides ! Le minimum de Mythiques ne peut pas dépasser le maximum.' },
+    alertLegendaryPoolTooSmall: { en: "Invalid settings! Your generation filter only leaves {available} Legendary Pokémon, but {needed} are needed to guarantee both players' picks.", fr: 'Paramètres invalides ! Votre filtre de génération ne laisse que {available} Pokémon Légendaires, mais {needed} sont nécessaires pour garantir les choix des deux joueurs.' },
+    alertMythicalPoolTooSmall: { en: "Invalid settings! Your generation filter only leaves {available} Mythical Pokémon, but {needed} are needed to guarantee both players' picks.", fr: 'Paramètres invalides ! Votre filtre de génération ne laisse que {available} Pokémon Mythiques, mais {needed} sont nécessaires pour garantir les choix des deux joueurs.' },
+    alertStandardPoolTooSmall: { en: 'Invalid settings! You need at least {needed} standard Pokémon to complete the draft. Your current settings only leave {available} available.', fr: 'Paramètres invalides ! Il faut au moins {needed} Pokémon standards pour terminer la draft. Vos paramètres actuels n\'en laissent que {available} disponibles.' },
+    alertTeamCopied: { en: 'Team copied to clipboard!', fr: "Équipe copiée dans le presse-papiers !" },
+    alertCopyFailed: { en: 'Could not copy the team. Please try again.', fr: "Impossible de copier l'équipe. Veuillez réessayer." },
+
+    // Pokemon types
+    normal: { en: 'Normal', fr: 'Normal' },
+    fire: { en: 'Fire', fr: 'Feu' },
+    water: { en: 'Water', fr: 'Eau' },
+    electric: { en: 'Electric', fr: 'Électrik' },
+    grass: { en: 'Grass', fr: 'Plante' },
+    ice: { en: 'Ice', fr: 'Glace' },
+    fighting: { en: 'Fighting', fr: 'Combat' },
+    poison: { en: 'Poison', fr: 'Poison' },
+    ground: { en: 'Ground', fr: 'Sol' },
+    flying: { en: 'Flying', fr: 'Vol' },
+    psychic: { en: 'Psychic', fr: 'Psy' },
+    bug: { en: 'Bug', fr: 'Insecte' },
+    rock: { en: 'Rock', fr: 'Roche' },
+    ghost: { en: 'Ghost', fr: 'Spectre' },
+    dragon: { en: 'Dragon', fr: 'Dragon' },
+    dark: { en: 'Dark', fr: 'Ténèbres' },
+    steel: { en: 'Steel', fr: 'Acier' },
+    fairy: { en: 'Fairy', fr: 'Fée' },
+
+    // Pokemon colors (species.color)
+    black: { en: 'Black', fr: 'Noir' },
+    blue: { en: 'Blue', fr: 'Bleu' },
+    brown: { en: 'Brown', fr: 'Marron' },
+    gray: { en: 'Gray', fr: 'Gris' },
+    green: { en: 'Green', fr: 'Vert' },
+    pink: { en: 'Pink', fr: 'Rose' },
+    purple: { en: 'Purple', fr: 'Violet' },
+    red: { en: 'Red', fr: 'Rouge' },
+    white: { en: 'White', fr: 'Blanc' },
+    yellow: { en: 'Yellow', fr: 'Jaune' },
+
+    // Pokemon shapes (species.shape)
+    ball: { en: 'Ball', fr: 'Boule' },
+    squiggle: { en: 'Squiggle', fr: 'Serpentin' },
+    fish: { en: 'Fish', fr: 'Poisson' },
+    arms: { en: 'Arms', fr: 'Bras' },
+    blob: { en: 'Blob', fr: 'Amorphe' },
+    upright: { en: 'Upright', fr: 'Debout' },
+    legs: { en: 'Legs', fr: 'Jambes' },
+    quadruped: { en: 'Quadruped', fr: 'Quadrupède' },
+    wings: { en: 'Wings', fr: 'Ailes' },
+    tentacles: { en: 'Tentacles', fr: 'Tentacules' },
+    heads: { en: 'Heads', fr: 'Têtes' },
+    humanoid: { en: 'Humanoid', fr: 'Humanoïde' },
+    'bug-wings': { en: 'Bug Wings', fr: "Ailes d'Insecte" },
+    armor: { en: 'Armor', fr: 'Armure' },
+
+    // Base stats
+    hp: { en: 'HP', fr: 'PV' },
+    attack: { en: 'Attack', fr: 'Attaque' },
+    defense: { en: 'Defense', fr: 'Défense' },
+    specialAttack: { en: 'Sp. Atk', fr: 'Atq. Spé' },
+    specialDefense: { en: 'Sp. Def', fr: 'Déf. Spé' },
+    speed: { en: 'Speed', fr: 'Vitesse' },
+    baseStatTotal: { en: 'Base Stat Total', fr: 'Total des Statistiques' }
+};
+
+const LANG_STORAGE_KEY = 'pokedraft-lang';
+let currentLang = localStorage.getItem(LANG_STORAGE_KEY) || 'fr';
+
+// Look up a single translated string by i18n key
+function translate(key) {
+    const entry = i18n[key];
+    return entry ? entry[currentLang] : key;
+}
+
+// The dataset stores full language names (english/french) rather than the
+// short 'en'/'fr' codes used by currentLang, so this maps between them.
+function getPokemonName(pokemon) {
+    return currentLang === 'fr' ? pokemon.names.french : pokemon.names.english;
+}
+
+// Look up a translated string and substitute {param} placeholders
+function t(key, params = {}) {
+    let text = translate(key);
+    Object.keys(params).forEach((paramKey) => {
+        text = text.replace(`{${paramKey}}`, params[paramKey]);
+    });
+    return text;
+}
+
 const DRAFT_SIZE = 3;
 const MAX_TURNS = 12;
 
@@ -47,6 +200,7 @@ const opponentTeamSlots = document.getElementById('opponent-team-slots');
 const roomIdBar = document.getElementById('room-id-bar');
 const roomIdText = document.getElementById('room-id-text');
 const copyIdBtn = document.getElementById('copy-id-btn');
+const langToggleBtn = document.getElementById('lang-toggle');
 
 const hostBtn = document.getElementById('host-btn');
 const joinBtn = document.getElementById('join-btn');
@@ -66,8 +220,39 @@ const symmetricalMythicalsCheckbox = document.getElementById('symmetrical-mythic
 const clueSelect = document.getElementById('clue-select');
 const startDraftBtn = document.getElementById('start-draft-btn');
 
-function setDialogue(message) {
-    dialogueText.textContent = message;
+function setDialogue(key, params) {
+    dialogueText.textContent = t(key, params);
+}
+
+function updateUILanguage() {
+    document.documentElement.lang = currentLang;
+    langToggleBtn.textContent = currentLang === 'fr' ? 'EN' : 'FR';
+
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+        el.textContent = translate(el.getAttribute('data-i18n'));
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+        el.placeholder = translate(el.getAttribute('data-i18n-placeholder'));
+    });
+
+    // Re-render whichever dynamic content is currently on screen so it
+    // reflects the newly selected language without waiting for the next turn.
+    if (labDesk.classList.contains('showcase')) {
+        renderTeamShowcase();
+    } else if (currentStarterIds.length > 0) {
+        renderSlots();
+    }
+
+    if (currentTurn > 0) {
+        updateTurnInfo();
+    }
+
+    renderTeamPanels();
+
+    if (hostRoomId && !roomIdBar.classList.contains('hidden')) {
+        roomIdText.textContent = t('roomIdLabel', { id: hostRoomId });
+    }
 }
 
 function showGameScreen() {
@@ -97,7 +282,7 @@ async function loadPokemonDatabase() {
         console.log(`Loaded ${pokemonDatabase.length} Pokemon from the database.`);
     } catch (error) {
         console.error('Failed to load Pokemon database:', error);
-        setDialogue('Error: could not load the Pokemon database.');
+        setDialogue('dlgErrorLoadingDb');
     }
 }
 
@@ -105,12 +290,8 @@ function getPokemonById(id) {
     return pokemonDatabase.find((pokemon) => pokemon.id === id);
 }
 
-function capitalize(text) {
-    return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
 function formatTypes(types) {
-    return types.map(capitalize).join(' / ');
+    return types.map(translate).join(' / ');
 }
 
 function getGeneration(pokemonId) {
@@ -175,16 +356,16 @@ function pickRandomStarterIds(pickerIsHostForTurn) {
 function getClueText(pokemon) {
     switch (gameSettings.clueType) {
         case 'color':
-            return capitalize(pokemon.attributes.color);
+            return translate(pokemon.attributes.color);
         case 'shape':
-            return capitalize(pokemon.attributes.shape);
+            return translate(pokemon.attributes.shape);
         case 'height_weight':
-            return `Height: ${(pokemon.attributes.height / 10).toFixed(1)}m / Weight: ${(pokemon.attributes.weight / 10).toFixed(1)}kg`;
+            return `${translate('heightLabel')}: ${(pokemon.attributes.height / 10).toFixed(1)}m / ${translate('weightLabel')}: ${(pokemon.attributes.weight / 10).toFixed(1)}kg`;
         case 'pokedex_num':
             return `#${String(pokemon.id).padStart(4, '0')}`;
         case 'total_stats': {
             const { hp, attack, defense, special_attack, special_defense, speed } = pokemon.stats;
-            return `Base Stat Total: ${hp + attack + defense + special_attack + special_defense + speed}`;
+            return `${translate('baseStatTotal')}: ${hp + attack + defense + special_attack + special_defense + speed}`;
         }
         case 'types':
         default:
@@ -200,19 +381,19 @@ function getStatTier(value) {
 
 function buildStatBarsHTML(pokemon) {
     const statRows = [
-        { label: 'HP', value: pokemon.stats.hp },
-        { label: 'Attack', value: pokemon.stats.attack },
-        { label: 'Defense', value: pokemon.stats.defense },
-        { label: 'Sp. Atk', value: pokemon.stats.special_attack },
-        { label: 'Sp. Def', value: pokemon.stats.special_defense },
-        { label: 'Speed', value: pokemon.stats.speed }
+        { key: 'hp', value: pokemon.stats.hp },
+        { key: 'attack', value: pokemon.stats.attack },
+        { key: 'defense', value: pokemon.stats.defense },
+        { key: 'specialAttack', value: pokemon.stats.special_attack },
+        { key: 'specialDefense', value: pokemon.stats.special_defense },
+        { key: 'speed', value: pokemon.stats.speed }
     ];
 
     const rowsHTML = statRows.map((stat) => {
         const widthPercent = Math.min((stat.value / 255) * 100, 100);
         return `
             <div class="stat-row">
-                <span class="stat-label">${stat.label}</span>
+                <span class="stat-label">${translate(stat.key)}</span>
                 <span class="stat-value">${stat.value}</span>
                 <div class="stat-bar-track">
                     <div class="stat-bar-fill stat-${getStatTier(stat.value)}" style="width: ${widthPercent}%"></div>
@@ -223,7 +404,7 @@ function buildStatBarsHTML(pokemon) {
 
     return `
         <div class="stat-block">
-            <p class="stat-block-title">Base Stats</p>
+            <p class="stat-block-title">${translate('clueBaseStats')}</p>
             ${rowsHTML}
         </div>
     `;
@@ -231,9 +412,9 @@ function buildStatBarsHTML(pokemon) {
 
 function buildCryClueHTML(pokemon) {
     if (!pokemon.media.cry) {
-        return `<button type="button" class="pixel-btn small-btn play-cry-btn" disabled>Audio corrupted</button>`;
+        return `<button type="button" class="pixel-btn small-btn play-cry-btn" disabled>${translate('audioCorrupted')}</button>`;
     }
-    return `<button type="button" class="pixel-btn small-btn play-cry-btn" data-cry-url="${pokemon.media.cry}">[ ▶ Play Cry ]</button>`;
+    return `<button type="button" class="pixel-btn small-btn play-cry-btn" data-cry-url="${pokemon.media.cry}">${translate('playCry')}</button>`;
 }
 
 function buildClueHTML(pokemon) {
@@ -254,8 +435,8 @@ function addPickToTeam(pokemonId, pickerWasHost) {
 }
 
 function updateTurnInfo() {
-    const role = amIPicker() ? 'Blind Picker' : 'Guide';
-    turnInfo.textContent = `Turn ${currentTurn} / ${MAX_TURNS} — You are the ${role}`;
+    const role = translate(amIPicker() ? 'blindPicker' : 'guide');
+    turnInfo.textContent = t('turnInfoTemplate', { turn: currentTurn, max: MAX_TURNS, role });
 }
 
 function buildSlotHTML(pokemonId, index) {
@@ -271,16 +452,17 @@ function buildSlotHTML(pokemonId, index) {
     if (wasPassedOver) slotClasses.push('not-chosen');
 
     const clueHTML = buildClueHTML(pokemon);
+    const pokemonName = getPokemonName(pokemon);
 
     if (isRevealed) {
-        const tooltip = `${pokemon.names.english} (#${pokemon.id})`;
+        const tooltip = `${pokemonName} (#${pokemon.id})`;
         return `
             <div class="slot-wrapper">
                 <div class="${slotClasses.join(' ')}" data-slot="${index}" data-tooltip="${tooltip}">
-                    <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemon.names.english}">
+                    <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemonName}">
                 </div>
                 ${wasPickedHere ? clueHTML : ''}
-                ${wasPassedOver ? '<p class="slot-clue-label not-chosen-label">Not Chosen</p>' : ''}
+                ${wasPassedOver ? `<p class="slot-clue-label not-chosen-label">${translate('notChosen')}</p>` : ''}
             </div>
         `;
     }
@@ -313,10 +495,11 @@ function buildMiniTeamSlotHTML(pokemonId) {
     }
 
     const pokemon = getPokemonById(pokemonId);
-    const tooltip = `${pokemon.names.english} (#${pokemon.id})`;
+    const pokemonName = getPokemonName(pokemon);
+    const tooltip = `${pokemonName} (#${pokemon.id})`;
     return `
         <div class="mini-team-slot" data-tooltip="${tooltip}">
-            <img class="mini-team-sprite" src="${pokemon.media.sprite}" alt="${pokemon.names.english}">
+            <img class="mini-team-sprite" src="${pokemon.media.sprite}" alt="${pokemonName}">
         </div>
     `;
 }
@@ -332,17 +515,18 @@ function renderTeamPanels() {
 function buildShowcaseTeamHTML(team, isMine) {
     const slotsHTML = team.map((id) => {
         const pokemon = getPokemonById(id);
-        const tooltip = `${pokemon.names.english} (#${pokemon.id})`;
+        const pokemonName = getPokemonName(pokemon);
+        const tooltip = `${pokemonName} (#${pokemon.id})`;
         return `
             <div class="draft-slot team-slot" data-tooltip="${tooltip}">
-                <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemon.names.english}">
+                <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemonName}">
             </div>
         `;
     }).join('');
 
     return `
         <div class="showcase-team ${isMine ? 'mine' : ''}">
-            <p class="showcase-team-title">${isMine ? 'Your Team (You)' : 'Opponent Team'}</p>
+            <p class="showcase-team-title">${isMine ? translate('yourTeamYou') : translate('opponentTeam')}</p>
             <div class="showcase-grid">${slotsHTML}</div>
         </div>
     `;
@@ -352,7 +536,7 @@ function renderTeamShowcase() {
     const myTeam = isHost ? hostTeam : guestTeam;
     const opponentTeam = isHost ? guestTeam : hostTeam;
 
-    turnInfo.textContent = 'Draft complete!';
+    turnInfo.textContent = translate('draftComplete');
     myTeamPanel.classList.add('hidden');
     opponentTeamPanel.classList.add('hidden');
 
@@ -366,7 +550,7 @@ function renderTeamShowcase() {
 
 function endDraft() {
     nextTurnBtn.classList.add('hidden');
-    setDialogue('Draft complete! Your team is ready.');
+    setDialogue('dlgDraftCompleteReady');
     renderTeamShowcase();
     exportBtn.classList.remove('hidden');
     console.log('Host team:', hostTeam.map((id) => getPokemonById(id).names.english));
@@ -379,7 +563,7 @@ function finalizePick(index) {
     animateSlot(index);
     updateTurnInfo();
     renderTeamPanels();
-    setDialogue(`${pokemon.names.english} was selected!`);
+    setDialogue('dlgPokemonSelected', { name: getPokemonName(pokemon) });
 
     if (currentTurn >= MAX_TURNS) {
         endDraft();
@@ -426,7 +610,7 @@ function startTurn(data) {
     nextTurnBtn.classList.add('hidden');
     renderSlots();
     updateTurnInfo();
-    setDialogue(amIPicker() ? 'Choose your starter!' : 'Guide your partner to the best pick!');
+    setDialogue(amIPicker() ? 'dlgChooseStarter' : 'dlgGuidePartner');
 }
 
 function advanceTurn() {
@@ -472,7 +656,7 @@ nextTurnBtn.addEventListener('click', () => {
     if (isHost) {
         advanceTurn();
     } else {
-        setDialogue('Waiting for the next turn...');
+        setDialogue('dlgWaitingNextTurn');
         connection.send({ type: 'request-next-turn' });
     }
 });
@@ -482,14 +666,20 @@ copyIdBtn.addEventListener('click', () => {
 
     navigator.clipboard.writeText(hostRoomId)
         .then(() => {
-            copyIdBtn.textContent = 'Copied!';
+            copyIdBtn.textContent = translate('copied');
             setTimeout(() => {
-                copyIdBtn.textContent = 'Copy';
+                copyIdBtn.textContent = translate('copy');
             }, 2000);
         })
         .catch((error) => {
             console.error('Failed to copy the room ID:', error);
         });
+});
+
+langToggleBtn.addEventListener('click', () => {
+    currentLang = currentLang === 'fr' ? 'en' : 'fr';
+    localStorage.setItem(LANG_STORAGE_KEY, currentLang);
+    updateUILanguage();
 });
 
 startDraftBtn.addEventListener('click', () => {
@@ -498,7 +688,7 @@ startDraftBtn.addEventListener('click', () => {
     ).map((checkbox) => Number(checkbox.value));
 
     if (allowedGenerations.length === 0) {
-        setDialogue('Select at least one generation to continue.');
+        setDialogue('dlgSelectGeneration');
         return;
     }
 
@@ -508,12 +698,12 @@ startDraftBtn.addEventListener('click', () => {
     const mythicalMax = Number(mythicalMaxInput.value);
 
     if (legendaryMin > legendaryMax) {
-        window.alert('Invalid settings! Min Legendaries cannot be greater than Max Legendaries.');
+        window.alert(t('alertLegendaryMinMax'));
         return;
     }
 
     if (mythicalMin > mythicalMax) {
-        window.alert('Invalid settings! Min Mythicals cannot be greater than Max Mythicals.');
+        window.alert(t('alertMythicalMinMax'));
         return;
     }
 
@@ -547,17 +737,17 @@ startDraftBtn.addEventListener('click', () => {
     const requiredStandardSize = requiredPoolSize - totalLegendaryDraws - totalMythicalDraws;
 
     if (legendaryPool.length < totalLegendaryDraws) {
-        window.alert(`Invalid settings! Your generation filter only leaves ${legendaryPool.length} Legendary Pokémon, but ${totalLegendaryDraws} are needed to guarantee both players' picks.`);
+        window.alert(t('alertLegendaryPoolTooSmall', { available: legendaryPool.length, needed: totalLegendaryDraws }));
         return;
     }
 
     if (mythicalPool.length < totalMythicalDraws) {
-        window.alert(`Invalid settings! Your generation filter only leaves ${mythicalPool.length} Mythical Pokémon, but ${totalMythicalDraws} are needed to guarantee both players' picks.`);
+        window.alert(t('alertMythicalPoolTooSmall', { available: mythicalPool.length, needed: totalMythicalDraws }));
         return;
     }
 
     if (standardPool.length < requiredStandardSize) {
-        window.alert(`Invalid settings! You need at least ${requiredStandardSize} standard Pokémon to complete the draft. Your current settings only leave ${standardPool.length} available.`);
+        window.alert(t('alertStandardPoolTooSmall', { needed: requiredStandardSize, available: standardPool.length }));
         return;
     }
 
@@ -572,11 +762,11 @@ exportBtn.addEventListener('click', () => {
 
     navigator.clipboard.writeText(exportText)
         .then(() => {
-            alert('Team copied to clipboard!');
+            window.alert(t('alertTeamCopied'));
         })
         .catch((error) => {
             console.error('Failed to copy the team to clipboard:', error);
-            alert('Could not copy the team. Please try again.');
+            window.alert(t('alertCopyFailed'));
         });
 });
 
@@ -585,7 +775,7 @@ function setupConnectionEvents(conn) {
 
     connection.on('open', () => {
         showSettingsScreen();
-        setDialogue(isHost ? 'Configure the game settings, then start the draft.' : 'Host is configuring game settings...');
+        setDialogue(isHost ? 'dlgConfigureSettings' : 'dlgHostConfiguring');
     });
 
     connection.on('data', (data) => {
@@ -608,18 +798,18 @@ function setupConnectionEvents(conn) {
     });
 
     connection.on('close', () => {
-        setDialogue('The other player disconnected.');
+        setDialogue('dlgPlayerDisconnected');
     });
 
     connection.on('error', (error) => {
         console.error('Connection error:', error);
-        setDialogue('A connection error occurred.');
+        setDialogue('dlgConnectionError');
     });
 }
 
 function hostGame() {
     if (pokemonDatabase.length === 0) {
-        setDialogue('Still loading the Pokemon database, please wait...');
+        setDialogue('dlgLoadingDb');
         return;
     }
 
@@ -629,26 +819,26 @@ function hostGame() {
     peer.on('open', (id) => {
         console.log('Host Peer ID:', id);
         hostRoomId = id;
-        setDialogue(`Room created! Share this ID with your friend: ${id}`);
+        setDialogue('dlgRoomCreated', { id });
         showGameScreen();
-        roomIdText.textContent = `Room ID: ${id}`;
+        roomIdText.textContent = t('roomIdLabel', { id });
         roomIdBar.classList.remove('hidden');
     });
 
     peer.on('connection', (conn) => {
-        setDialogue('Player joined! Establishing connection...');
+        setDialogue('dlgPlayerJoined');
         setupConnectionEvents(conn);
     });
 
     peer.on('error', (error) => {
         console.error('Peer error:', error);
-        setDialogue('A connection error occurred.');
+        setDialogue('dlgConnectionError');
     });
 }
 
 function joinGame(roomId) {
     if (pokemonDatabase.length === 0) {
-        setDialogue('Still loading the Pokemon database, please wait...');
+        setDialogue('dlgLoadingDb');
         return;
     }
 
@@ -657,7 +847,7 @@ function joinGame(roomId) {
 
     peer.on('open', () => {
         console.log('Guest Peer ID:', peer.id);
-        setDialogue('Connecting to host...');
+        setDialogue('dlgConnectingToHost');
         showGameScreen();
 
         const conn = peer.connect(roomId);
@@ -666,7 +856,7 @@ function joinGame(roomId) {
 
     peer.on('error', (error) => {
         console.error('Peer error:', error);
-        setDialogue('A connection error occurred.');
+        setDialogue('dlgConnectionError');
     });
 }
 
@@ -685,4 +875,5 @@ joinConfirmBtn.addEventListener('click', () => {
     }
 });
 
+updateUILanguage();
 loadPokemonDatabase();

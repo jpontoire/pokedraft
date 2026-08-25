@@ -1,5 +1,11 @@
 const fs = require('fs');
 
+// PokeAPI flavor texts embed newlines/form-feeds/carriage-returns as line-wrap hints.
+// Collapse any run of them into a single space so the stored text reads cleanly.
+function sanitizeText(text) {
+    return text.replace(/[\n\f\r]+/g, ' ').trim();
+}
+
 async function fetchPokemonData() {
     const totalPokemon = 1025;
     const finalDatabase = [];
@@ -8,23 +14,24 @@ async function fetchPokemonData() {
 
     for (let i = 1; i <= totalPokemon; i++) {
         try {
-            // 1. Fetch combat & stats data
-            const resData = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);
-            const data = await resData.json();
+            // 1. Fetch combat/stats data and species/lore data concurrently
+            const [resData, resSpecies] = await Promise.all([
+                fetch(`https://pokeapi.co/api/v2/pokemon/${i}`),
+                fetch(`https://pokeapi.co/api/v2/pokemon-species/${i}`)
+            ]);
+            const [data, species] = await Promise.all([resData.json(), resSpecies.json()]);
 
-            // 2. Fetch lore & text data
-            const resSpecies = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${i}`);
-            const species = await resSpecies.json();
-
-            // 3. Extract French name
+            // 2. Extract French name
             const frenchNameEntry = species.names.find(n => n.language.name === 'fr');
             const frenchName = frenchNameEntry ? frenchNameEntry.name : data.name;
 
-            // 4. Extract English flavor text
-            const flavorTextEntry = species.flavor_text_entries.find(f => f.language.name === 'en');
-            const flavorText = flavorTextEntry ? flavorTextEntry.flavor_text.replace(/\n|\f/g, ' ') : "No description available.";
+            // 3. Extract English and French flavor text descriptions
+            const englishFlavorEntry = species.flavor_text_entries.find(f => f.language.name === 'en');
+            const frenchFlavorEntry = species.flavor_text_entries.find(f => f.language.name === 'fr');
+            const englishDescription = englishFlavorEntry ? sanitizeText(englishFlavorEntry.flavor_text) : "No description available.";
+            const frenchDescription = frenchFlavorEntry ? sanitizeText(frenchFlavorEntry.flavor_text) : "Description non disponible.";
 
-            // 5. Build the optimized object
+            // 4. Build the optimized object
             const pokemonObject = {
                 id: data.id,
                 names: {
@@ -53,7 +60,10 @@ async function fetchPokemonData() {
                     sprite: data.sprites.other['official-artwork'].front_default,
                     cry: data.cries ? data.cries.latest : null
                 },
-                flavor_text: flavorText
+                description: {
+                    english: englishDescription,
+                    french: frenchDescription
+                }
             };
 
             finalDatabase.push(pokemonObject);

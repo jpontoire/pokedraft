@@ -36,6 +36,13 @@ body {
     gap: 28px;
 }
 
+.lang-toggle-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+}
+
 #app-layout {
     display: flex;
     align-items: stretch;
@@ -735,6 +742,10 @@ body {
 
 /* Phone */
 @media (max-width: 480px) {
+    #app {
+        padding-top: 56px;
+    }
+
     .app-title {
         font-size: 20px;
     }
