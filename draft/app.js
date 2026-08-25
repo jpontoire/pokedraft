@@ -6,6 +6,7 @@ const i18n = {
     hostGame: { en: 'Host Game', fr: 'Héberger une Partie' },
     joinGame: { en: 'Join Game', fr: 'Rejoindre une Partie' },
     roomIdPlaceholder: { en: 'Room ID', fr: 'ID de la Partie' },
+    backToMenu: { en: '< Menu', fr: '< Menu' },
     connect: { en: 'Connect', fr: 'Se Connecter' },
     gameSettings: { en: 'Game Settings', fr: 'Paramètres de la Partie' },
     allowedGenerations: { en: 'Allowed Generations', fr: 'Générations Autorisées' },

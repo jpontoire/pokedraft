@@ -4,6 +4,7 @@ const LANG_STORAGE_KEY = 'pokedraft-lang';
 
 const i18n = {
     guessPlaceholder: { en: "Who's that Pokemon?", fr: 'Qui est ce Pokémon ?' },
+    backToMenu: { en: '< Menu', fr: '< Menu' },
     submit: { en: 'Submit', fr: 'Valider' },
     nextPokemon: { en: 'Next Pokemon', fr: 'Pokémon Suivant' },
     dlgLoading: { en: 'Loading Pokemon data...', fr: 'Chargement des données...' },
