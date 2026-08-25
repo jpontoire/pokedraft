@@ -11,13 +11,16 @@
 </head>
 <body>
     <div id="portal">
-        <h1 class="portal-title">PokeDraft Portal</h1>
-        <p class="portal-subtitle">Choose a game to play</p>
+        <button id="lang-toggle" type="button" class="pixel-btn lang-toggle-btn">EN</button>
+        <h1 class="portal-title" data-i18n="portalTitle">PokeDraft Portal</h1>
+        <p class="portal-subtitle" data-i18n="portalSubtitle">Choose a game to play</p>
 
         <div class="portal-menu">
-            <a href="./draft/" class="pixel-btn portal-btn">Play PokeDraft</a>
-            <a href="./zoom/" class="pixel-btn portal-btn">Play PokeZoom</a>
+            <a href="./draft/" class="pixel-btn portal-btn" data-i18n="playDraft">Play PokeDraft</a>
+            <a href="./zoom/" class="pixel-btn portal-btn" data-i18n="playZoom">Play PokeZoom</a>
         </div>
     </div>
+
+    <script src="app.js"></script>
 </body>
 </html>

@@ -11,6 +11,7 @@
 </head>
 <body>
     <div id="app">
+        <button id="lang-toggle" type="button" class="pixel-btn lang-toggle-btn">EN</button>
         <h1 class="app-title">PokeZoom</h1>
 
         <div class="zoom-frame">
@@ -18,15 +19,15 @@
         </div>
 
         <form id="guess-form" class="guess-form">
-            <input id="guess-input" class="pixel-input" type="text" list="pokemon-names" placeholder="Who's that Pokemon?" autocomplete="off">
+            <input id="guess-input" class="pixel-input" type="text" list="pokemon-names" data-i18n-placeholder="guessPlaceholder" placeholder="Who's that Pokemon?" autocomplete="off">
             <datalist id="pokemon-names"></datalist>
-            <button type="submit" id="submit-btn" class="pixel-btn">Submit</button>
+            <button type="submit" id="submit-btn" class="pixel-btn" data-i18n="submit">Submit</button>
         </form>
 
-        <button id="next-btn" class="pixel-btn hidden">Next Pokemon</button>
+        <button id="next-btn" class="pixel-btn hidden" data-i18n="nextPokemon">Next Pokemon</button>
 
         <footer id="dialogue-box" class="dialogue-box">
-            <p id="dialogue-text">Loading Pokemon data...</p>
+            <p id="dialogue-text" data-i18n="dlgLoading">Loading Pokemon data...</p>
         </footer>
     </div>
 

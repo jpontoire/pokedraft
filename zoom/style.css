@@ -36,6 +36,24 @@ body {
     gap: 24px;
 }
 
+.lang-toggle-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    font-size: 10px;
+    padding: 10px 14px;
+    box-shadow: 3px 3px 0 var(--color-border);
+}
+
+.lang-toggle-btn:hover {
+    box-shadow: 1px 1px 0 var(--color-border);
+}
+
+.lang-toggle-btn:active {
+    box-shadow: 0 0 0 var(--color-border);
+}
+
 .app-title {
     text-align: center;
     font-size: 30px;
@@ -132,6 +150,10 @@ body {
 }
 
 @media (max-width: 480px) {
+    #app {
+        padding-top: 56px;
+    }
+
     .app-title {
         font-size: 20px;
     }
