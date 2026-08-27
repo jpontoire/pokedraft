@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokePalette</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <a href="../" class="pixel-btn back-to-portal-btn" data-i18n="backToMenu">< Menu</a>
+        <button id="lang-toggle" type="button" class="pixel-btn lang-toggle-btn">EN</button>
+        <h1 class="app-title">PokePalette</h1>
+
+        <div class="palette-stage">
+            <div id="palette-container" class="palette-container"></div>
+            <div id="sprite-container" class="sprite-container hidden">
+                <img id="sprite-image" class="sprite-image" src="" alt="">
+            </div>
+        </div>
+
+        <!-- Used only to read pixel data off-screen; never shown to the player. -->
+        <canvas id="extraction-canvas" class="hidden"></canvas>
+
+        <form id="guess-form" class="guess-form">
+            <input id="guess-input" class="pixel-input" type="text" list="pokemon-names" data-i18n-placeholder="guessPlaceholder" placeholder="Who's that Pokemon?" autocomplete="off">
+            <datalist id="pokemon-names"></datalist>
+            <div class="guess-actions">
+                <button type="submit" class="pixel-btn" data-i18n="submit">Submit</button>
+                <button type="button" id="skip-btn" class="pixel-btn small-btn" data-i18n="skip">Skip</button>
+            </div>
+        </form>
+
+        <button id="next-btn" class="pixel-btn hidden" data-i18n="nextPokemon">Next Pokemon</button>
+
+        <footer id="dialogue-box" class="dialogue-box">
+            <p id="dialogue-text" data-i18n="dlgLoading">Loading Pokemon data...</p>
+        </footer>
+    </div>
+
+    <script src="../translations/shared.js"></script>
+    <script src="../translations/palette.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

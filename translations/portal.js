@@ -6,5 +6,6 @@ const i18n = {
     portalSubtitle: { en: 'Choose a game to play', fr: 'Choisissez un jeu' },
     playDraft: { en: 'Play PokeDraft', fr: 'Jouer à PokeDraft' },
     playZoom: { en: 'Play PokeZoom', fr: 'Jouer à PokeZoom' },
-    playDex: { en: 'Play DexGuess', fr: 'Jouer à DexGuess' }
+    playDex: { en: 'Play DexGuess', fr: 'Jouer à DexGuess' },
+    playPalette: { en: 'Play PokePalette', fr: 'Jouer à PokePalette' }
 };
