@@ -13,6 +13,4 @@ const pageI18n = {
     viewDescriptionIn: { en: 'View description in {lang}', fr: 'Voir la description en {lang}' },
     langNameEnglish: { en: 'English', fr: 'Anglais' },
     langNameFrench: { en: 'French', fr: 'Français' },
-    skip: { en: 'Skip', fr: 'Passer' },
-    dlgSkipped: { en: 'No luck! It was {name}.', fr: "Pas de chance ! C'était {name}." }
 };

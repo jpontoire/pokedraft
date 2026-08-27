@@ -43,11 +43,13 @@ const sharedI18n = {
     white: { en: 'White', fr: 'Blanc' },
     yellow: { en: 'Yellow', fr: 'Jaune' },
 
-    // Guessing-game UI (zoom + dex)
+    // Guessing-game UI (zoom + dex + palette)
     guessPlaceholder: { en: "Who's that Pokemon?", fr: 'Qui est ce Pokémon ?' },
     submit: { en: 'Submit', fr: 'Valider' },
     nextPokemon: { en: 'Next Pokemon', fr: 'Pokémon Suivant' },
     dlgLoading: { en: 'Loading Pokemon data...', fr: 'Chargement des données...' },
     dlgErrorLoading: { en: 'Error: could not load the Pokemon database.', fr: 'Erreur : impossible de charger la base de données.' },
-    dlgCorrect: { en: "Correct! It's {name}!", fr: "Correct ! C'est {name} !" }
+    dlgCorrect: { en: "Correct! It's {name}!", fr: "Correct ! C'est {name} !" },
+    skip: { en: 'Skip', fr: 'Passer' },
+    dlgSkipped: { en: 'No luck! It was {name}.', fr: "Pas de chance ! C'était {name}." }
 };
