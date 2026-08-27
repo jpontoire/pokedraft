@@ -1,134 +1,6 @@
 // app.js
 
-// Translation dictionary: static UI strings, Pokemon types, colors, shapes and stats.
-const i18n = {
-    // Static UI
-    hostGame: { en: 'Host Game', fr: 'Héberger une Partie' },
-    joinGame: { en: 'Join Game', fr: 'Rejoindre une Partie' },
-    roomIdPlaceholder: { en: 'Room ID', fr: 'ID de la Partie' },
-    backToMenu: { en: '< Menu', fr: '< Menu' },
-    connect: { en: 'Connect', fr: 'Se Connecter' },
-    gameSettings: { en: 'Game Settings', fr: 'Paramètres de la Partie' },
-    allowedGenerations: { en: 'Allowed Generations', fr: 'Générations Autorisées' },
-    gen: { en: 'Gen', fr: 'Gén' },
-    legendariesSettings: { en: 'Legendaries Settings', fr: 'Paramètres des Légendaires' },
-    mythicalsSettings: { en: 'Mythicals Settings', fr: 'Paramètres des Mythiques' },
-    min: { en: 'Min', fr: 'Min' },
-    max: { en: 'Max', fr: 'Max' },
-    symmetricalLegendaries: { en: 'Symmetrical Legendaries', fr: 'Légendaires Symétriques' },
-    symmetricalMythicals: { en: 'Symmetrical Mythicals', fr: 'Mythiques Symétriques' },
-    blindPickerClue: { en: 'Blind Picker Clue', fr: 'Indice du Sélectionneur Aveugle' },
-    clueTypes: { en: 'Types', fr: 'Types' },
-    clueColor: { en: 'Color', fr: 'Couleur' },
-    clueShape: { en: 'Shape', fr: 'Forme' },
-    clueHeightWeight: { en: 'Height / Weight', fr: 'Taille / Poids' },
-    cluePokedexNum: { en: 'Pokedex Number', fr: 'Numéro Pokédex' },
-    clueBaseStats: { en: 'Base Stats', fr: 'Statistiques de Base' },
-    clueTotalStats: { en: 'Total Base Stats', fr: 'Total des Statistiques' },
-    clueCry: { en: 'Pokémon Cry (Audio)', fr: 'Cri du Pokémon (Audio)' },
-    startDraft: { en: 'Start Draft', fr: 'Lancer la Draft' },
-    yourTeam: { en: 'Your Team', fr: 'Votre Équipe' },
-    opponentTeam: { en: 'Opponent Team', fr: 'Équipe Adverse' },
-    yourTeamYou: { en: 'Your Team (You)', fr: 'Votre Équipe (Vous)' },
-    copy: { en: 'Copy', fr: 'Copier' },
-    copied: { en: 'Copied!', fr: 'Copié !' },
-    nextTurn: { en: 'Next Turn', fr: 'Tour Suivant' },
-    exportTeam: { en: 'Export Team to Showdown', fr: 'Exporter vers Showdown' },
-    notChosen: { en: 'Not Chosen', fr: 'Non Choisi' },
-    audioCorrupted: { en: 'Audio corrupted', fr: 'Audio corrompu' },
-    playCry: { en: '[ ▶ Play Cry ]', fr: '[ ▶ Écouter le Cri ]' },
-    draftComplete: { en: 'Draft complete!', fr: 'Draft terminée !' },
-    heightLabel: { en: 'Height', fr: 'Taille' },
-    weightLabel: { en: 'Weight', fr: 'Poids' },
-    guide: { en: 'Guide', fr: 'Guide' },
-    blindPicker: { en: 'Blind Picker', fr: 'Sélectionneur Aveugle' },
-    turnInfoTemplate: { en: 'Turn {turn} / {max} — You are the {role}', fr: 'Tour {turn} / {max} — Vous êtes le {role}' },
-    roomIdLabel: { en: 'Room ID: {id}', fr: 'ID de la Partie : {id}' },
-
-    // Dialogue box messages
-    dlgWelcome: { en: 'Welcome, Trainer! Host or join a game to begin.', fr: 'Bienvenue, Dresseur ! Hébergez ou rejoignez une partie pour commencer.' },
-    dlgLoadingDb: { en: 'Still loading the Pokemon database, please wait...', fr: 'Chargement de la base de données en cours, veuillez patienter...' },
-    dlgErrorLoadingDb: { en: 'Error: could not load the Pokemon database.', fr: 'Erreur : impossible de charger la base de données.' },
-    dlgRoomCreated: { en: 'Room created! Share this ID with your friend: {id}', fr: 'Partie créée ! Partagez cet ID avec votre ami : {id}' },
-    dlgPlayerJoined: { en: 'Player joined! Establishing connection...', fr: 'Un joueur a rejoint ! Établissement de la connexion...' },
-    dlgConnectingToHost: { en: 'Connecting to host...', fr: "Connexion à l'hôte..." },
-    dlgConnectionError: { en: 'A connection error occurred.', fr: 'Une erreur de connexion est survenue.' },
-    dlgPlayerDisconnected: { en: 'The other player disconnected.', fr: "L'autre joueur s'est déconnecté." },
-    dlgConfigureSettings: { en: 'Configure the game settings, then start the draft.', fr: 'Configurez les paramètres, puis lancez la draft.' },
-    dlgHostConfiguring: { en: 'Host is configuring game settings...', fr: "L'hôte configure les paramètres de la partie..." },
-    dlgSelectGeneration: { en: 'Select at least one generation to continue.', fr: 'Sélectionnez au moins une génération pour continuer.' },
-    dlgChooseStarter: { en: 'Choose your starter!', fr: 'Choisissez votre Pokémon !' },
-    dlgGuidePartner: { en: 'Guide your partner to the best pick!', fr: 'Guidez votre partenaire vers le meilleur choix !' },
-    dlgPokemonSelected: { en: '{name} was selected!', fr: '{name} a été choisi !' },
-    dlgWaitingNextTurn: { en: 'Waiting for the next turn...', fr: 'En attente du tour suivant...' },
-    dlgDraftCompleteReady: { en: 'Draft complete! Your team is ready.', fr: 'Draft terminée ! Votre équipe est prête.' },
-
-    // Alerts
-    alertLegendaryMinMax: { en: 'Invalid settings! Min Legendaries cannot be greater than Max Legendaries.', fr: 'Paramètres invalides ! Le minimum de Légendaires ne peut pas dépasser le maximum.' },
-    alertMythicalMinMax: { en: 'Invalid settings! Min Mythicals cannot be greater than Max Mythicals.', fr: 'Paramètres invalides ! Le minimum de Mythiques ne peut pas dépasser le maximum.' },
-    alertLegendaryPoolTooSmall: { en: "Invalid settings! Your generation filter only leaves {available} Legendary Pokémon, but {needed} are needed to guarantee both players' picks.", fr: 'Paramètres invalides ! Votre filtre de génération ne laisse que {available} Pokémon Légendaires, mais {needed} sont nécessaires pour garantir les choix des deux joueurs.' },
-    alertMythicalPoolTooSmall: { en: "Invalid settings! Your generation filter only leaves {available} Mythical Pokémon, but {needed} are needed to guarantee both players' picks.", fr: 'Paramètres invalides ! Votre filtre de génération ne laisse que {available} Pokémon Mythiques, mais {needed} sont nécessaires pour garantir les choix des deux joueurs.' },
-    alertStandardPoolTooSmall: { en: 'Invalid settings! You need at least {needed} standard Pokémon to complete the draft. Your current settings only leave {available} available.', fr: 'Paramètres invalides ! Il faut au moins {needed} Pokémon standards pour terminer la draft. Vos paramètres actuels n\'en laissent que {available} disponibles.' },
-    alertTeamCopied: { en: 'Team copied to clipboard!', fr: "Équipe copiée dans le presse-papiers !" },
-    alertCopyFailed: { en: 'Could not copy the team. Please try again.', fr: "Impossible de copier l'équipe. Veuillez réessayer." },
-
-    // Pokemon types
-    normal: { en: 'Normal', fr: 'Normal' },
-    fire: { en: 'Fire', fr: 'Feu' },
-    water: { en: 'Water', fr: 'Eau' },
-    electric: { en: 'Electric', fr: 'Électrik' },
-    grass: { en: 'Grass', fr: 'Plante' },
-    ice: { en: 'Ice', fr: 'Glace' },
-    fighting: { en: 'Fighting', fr: 'Combat' },
-    poison: { en: 'Poison', fr: 'Poison' },
-    ground: { en: 'Ground', fr: 'Sol' },
-    flying: { en: 'Flying', fr: 'Vol' },
-    psychic: { en: 'Psychic', fr: 'Psy' },
-    bug: { en: 'Bug', fr: 'Insecte' },
-    rock: { en: 'Rock', fr: 'Roche' },
-    ghost: { en: 'Ghost', fr: 'Spectre' },
-    dragon: { en: 'Dragon', fr: 'Dragon' },
-    dark: { en: 'Dark', fr: 'Ténèbres' },
-    steel: { en: 'Steel', fr: 'Acier' },
-    fairy: { en: 'Fairy', fr: 'Fée' },
-
-    // Pokemon colors (species.color)
-    black: { en: 'Black', fr: 'Noir' },
-    blue: { en: 'Blue', fr: 'Bleu' },
-    brown: { en: 'Brown', fr: 'Marron' },
-    gray: { en: 'Gray', fr: 'Gris' },
-    green: { en: 'Green', fr: 'Vert' },
-    pink: { en: 'Pink', fr: 'Rose' },
-    purple: { en: 'Purple', fr: 'Violet' },
-    red: { en: 'Red', fr: 'Rouge' },
-    white: { en: 'White', fr: 'Blanc' },
-    yellow: { en: 'Yellow', fr: 'Jaune' },
-
-    // Pokemon shapes (species.shape)
-    ball: { en: 'Ball', fr: 'Boule' },
-    squiggle: { en: 'Squiggle', fr: 'Serpentin' },
-    fish: { en: 'Fish', fr: 'Poisson' },
-    arms: { en: 'Arms', fr: 'Bras' },
-    blob: { en: 'Blob', fr: 'Amorphe' },
-    upright: { en: 'Upright', fr: 'Debout' },
-    legs: { en: 'Legs', fr: 'Jambes' },
-    quadruped: { en: 'Quadruped', fr: 'Quadrupède' },
-    wings: { en: 'Wings', fr: 'Ailes' },
-    tentacles: { en: 'Tentacles', fr: 'Tentacules' },
-    heads: { en: 'Heads', fr: 'Têtes' },
-    humanoid: { en: 'Humanoid', fr: 'Humanoïde' },
-    'bug-wings': { en: 'Bug Wings', fr: "Ailes d'Insecte" },
-    armor: { en: 'Armor', fr: 'Armure' },
-
-    // Base stats
-    hp: { en: 'HP', fr: 'PV' },
-    attack: { en: 'Attack', fr: 'Attaque' },
-    defense: { en: 'Defense', fr: 'Défense' },
-    specialAttack: { en: 'Sp. Atk', fr: 'Atq. Spé' },
-    specialDefense: { en: 'Sp. Def', fr: 'Déf. Spé' },
-    speed: { en: 'Speed', fr: 'Vitesse' },
-    baseStatTotal: { en: 'Base Stat Total', fr: 'Total des Statistiques' }
-};
+const i18n = Object.assign({}, sharedI18n, pageI18n);
 
 const LANG_STORAGE_KEY = 'pokedraft-lang';
 let currentLang = localStorage.getItem(LANG_STORAGE_KEY) || 'fr';
@@ -283,7 +155,7 @@ async function loadPokemonDatabase() {
         console.log(`Loaded ${pokemonDatabase.length} Pokemon from the database.`);
     } catch (error) {
         console.error('Failed to load Pokemon database:', error);
-        setDialogue('dlgErrorLoadingDb');
+        setDialogue('dlgErrorLoading');
     }
 }
 
@@ -810,7 +682,7 @@ function setupConnectionEvents(conn) {
 
 function hostGame() {
     if (pokemonDatabase.length === 0) {
-        setDialogue('dlgLoadingDb');
+        setDialogue('dlgLoading');
         return;
     }
 
@@ -839,7 +711,7 @@ function hostGame() {
 
 function joinGame(roomId) {
     if (pokemonDatabase.length === 0) {
-        setDialogue('dlgLoadingDb');
+        setDialogue('dlgLoading');
         return;
     }
 

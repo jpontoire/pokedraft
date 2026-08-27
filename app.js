@@ -2,14 +2,6 @@
 
 const LANG_STORAGE_KEY = 'pokedraft-lang';
 
-const i18n = {
-    portalTitle: { en: 'PokeDraft Portal', fr: 'Portail PokeDraft' },
-    portalSubtitle: { en: 'Choose a game to play', fr: 'Choisissez un jeu' },
-    playDraft: { en: 'Play PokeDraft', fr: 'Jouer à PokeDraft' },
-    playZoom: { en: 'Play PokeZoom', fr: 'Jouer à PokeZoom' },
-    playDex: { en: 'Play DexGuess', fr: 'Jouer à DexGuess' }
-};
-
 let currentLang = localStorage.getItem(LANG_STORAGE_KEY) || 'fr';
 
 const langToggleBtn = document.getElementById('lang-toggle');
