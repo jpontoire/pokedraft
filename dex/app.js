@@ -83,11 +83,34 @@ function buildTypeBadgesHTML(types) {
     return types.map((type) => `<span class="type-badge type-${type}">${translate(type)}</span>`).join(' ');
 }
 
+const CENSOR_MASK = '[■■■■■]';
+
+function escapeRegExp(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Hides the current Pokemon's name and every member of its evolutionary
+// family from the description, so the answer can't just be read off the
+// Pokedex entry. Also matches simple plural forms (e.g. "Pikachus").
+function censorDescription(text, familyNames) {
+    return familyNames.reduce((censored, name) => {
+        if (!name) return censored;
+        // A leading \b prevents matching mid-word (e.g. inside "Ratticate"),
+        // but a trailing \b breaks on names ending in punctuation (like
+        // "Jr."), since \b requires a word/non-word transition and both the
+        // period and a following space are non-word. A negative lookahead
+        // for "not immediately followed by a letter" avoids that pitfall.
+        const pattern = new RegExp(`\\b${escapeRegExp(name)}s?(?![a-zA-Z])`, 'gi');
+        return censored.replace(pattern, CENSOR_MASK);
+    }, text);
+}
+
 function renderDescription() {
     const lang = descriptionLangOverride || currentLang;
 
     if (hasDescription(currentPokemon, lang)) {
-        descriptionText.textContent = getDescription(currentPokemon, lang);
+        const rawDescription = getDescription(currentPokemon, lang);
+        descriptionText.textContent = censorDescription(rawDescription, currentPokemon.familyNames || []);
         noDescriptionActions.classList.add('hidden');
         return;
     }
