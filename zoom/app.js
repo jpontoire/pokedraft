@@ -1,18 +1,7 @@
 // app.js
 
 const LANG_STORAGE_KEY = 'pokedraft-lang';
-
-const i18n = {
-    guessPlaceholder: { en: "Who's that Pokemon?", fr: 'Qui est ce Pokémon ?' },
-    backToMenu: { en: '< Menu', fr: '< Menu' },
-    submit: { en: 'Submit', fr: 'Valider' },
-    nextPokemon: { en: 'Next Pokemon', fr: 'Pokémon Suivant' },
-    dlgLoading: { en: 'Loading Pokemon data...', fr: 'Chargement des données...' },
-    dlgErrorLoading: { en: 'Error: could not load the Pokemon database.', fr: 'Erreur : impossible de charger la base de données.' },
-    dlgPrompt: { en: "Who's that Pokemon ?", fr: 'Qui est ce Pokémon ?' },
-    dlgWrong: { en: 'Wrong! The camera zooms out...', fr: 'Faux ! La caméra dézoome...' },
-    dlgCorrect: { en: "Correct! It's {name}!", fr: "Correct ! C'est {name} !" }
-};
+const i18n = Object.assign({}, sharedI18n, pageI18n);
 
 const START_SCALE = 20;
 const MIN_SCALE = 1;

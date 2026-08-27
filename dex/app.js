@@ -2,58 +2,7 @@
 
 const LANG_STORAGE_KEY = 'pokedraft-lang';
 
-const i18n = {
-    backToMenu: { en: '< Menu', fr: '< Menu' },
-    guessPlaceholder: { en: "Who's that Pokemon?", fr: 'Qui est ce Pokémon ?' },
-    submit: { en: 'Submit', fr: 'Valider' },
-    nextPokemon: { en: 'Next Pokemon', fr: 'Pokémon Suivant' },
-    dlgLoading: { en: 'Loading Pokemon data...', fr: 'Chargement des données...' },
-    dlgErrorLoading: { en: 'Error: could not load the Pokemon database.', fr: 'Erreur : impossible de charger la base de données.' },
-    dlgPrompt: { en: 'Read the Pokedex entry and guess the Pokemon!', fr: 'Lisez la description et devinez le Pokémon !' },
-    dlgWrongHintRevealed: { en: 'Wrong! A new hint was revealed!', fr: 'Faux ! Un nouvel indice est révélé !' },
-    dlgWrongCountdown: { en: 'Wrong! {remaining} more guess(es) until the next hint.', fr: 'Faux ! Encore {remaining} essai(s) avant le prochain indice.' },
-    dlgWrongNoMoreHints: { en: 'Wrong! No more hints left, keep guessing!', fr: "Faux ! Plus d'indices, continuez à deviner !" },
-    dlgCorrect: { en: "Correct! It's {name}!", fr: "Correct ! C'est {name} !" },
-    hintTypesLabel: { en: 'Hint 1: Types', fr: 'Indice 1 : Types' },
-    hintColorLabel: { en: 'Hint 2: Color & Size', fr: 'Indice 2 : Couleur & Taille' },
-    hintCryLabel: { en: 'Hint 3: Cry', fr: 'Indice 3 : Cri' },
-    heightLabel: { en: 'Height', fr: 'Taille' },
-    weightLabel: { en: 'Weight', fr: 'Poids' },
-    audioCorrupted: { en: 'Audio corrupted', fr: 'Audio corrompu' },
-    playCry: { en: '[ ▶ Play Cry ]', fr: '[ ▶ Écouter le Cri ]' },
-
-    // Pokemon types
-    normal: { en: 'Normal', fr: 'Normal' },
-    fire: { en: 'Fire', fr: 'Feu' },
-    water: { en: 'Water', fr: 'Eau' },
-    electric: { en: 'Electric', fr: 'Électrik' },
-    grass: { en: 'Grass', fr: 'Plante' },
-    ice: { en: 'Ice', fr: 'Glace' },
-    fighting: { en: 'Fighting', fr: 'Combat' },
-    poison: { en: 'Poison', fr: 'Poison' },
-    ground: { en: 'Ground', fr: 'Sol' },
-    flying: { en: 'Flying', fr: 'Vol' },
-    psychic: { en: 'Psychic', fr: 'Psy' },
-    bug: { en: 'Bug', fr: 'Insecte' },
-    rock: { en: 'Rock', fr: 'Roche' },
-    ghost: { en: 'Ghost', fr: 'Spectre' },
-    dragon: { en: 'Dragon', fr: 'Dragon' },
-    dark: { en: 'Dark', fr: 'Ténèbres' },
-    steel: { en: 'Steel', fr: 'Acier' },
-    fairy: { en: 'Fairy', fr: 'Fée' },
-
-    // Pokemon colors (species.color)
-    black: { en: 'Black', fr: 'Noir' },
-    blue: { en: 'Blue', fr: 'Bleu' },
-    brown: { en: 'Brown', fr: 'Marron' },
-    gray: { en: 'Gray', fr: 'Gris' },
-    green: { en: 'Green', fr: 'Vert' },
-    pink: { en: 'Pink', fr: 'Rose' },
-    purple: { en: 'Purple', fr: 'Violet' },
-    red: { en: 'Red', fr: 'Rouge' },
-    white: { en: 'White', fr: 'Blanc' },
-    yellow: { en: 'Yellow', fr: 'Jaune' }
-};
+const i18n = Object.assign({}, sharedI18n, pageI18n);
 
 // Wrong-guess counts at which each hint unlocks, in order.
 const HINT_THRESHOLDS = [3, 5, 7];
