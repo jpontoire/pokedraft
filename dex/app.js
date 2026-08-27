@@ -108,8 +108,8 @@ function getDescription(pokemon) {
     return currentLang === 'fr' ? pokemon.description.french : pokemon.description.english;
 }
 
-function formatTypes(types) {
-    return types.map(translate).join(' / ');
+function buildTypeBadgesHTML(types) {
+    return types.map((type) => `<span class="type-badge type-${type}">${translate(type)}</span>`).join(' ');
 }
 
 function isRoundSolved() {
@@ -124,7 +124,7 @@ function buildCryHintHTML(pokemon) {
 }
 
 function renderHints() {
-    hintTypesValue.textContent = formatTypes(currentPokemon.types);
+    hintTypesValue.innerHTML = buildTypeBadgesHTML(currentPokemon.types);
     hintColorValue.textContent = `${translate(currentPokemon.attributes.color)} — ${translate('heightLabel')}: ${(currentPokemon.attributes.height / 10).toFixed(1)}m / ${translate('weightLabel')}: ${(currentPokemon.attributes.weight / 10).toFixed(1)}kg`;
     hintCryContent.innerHTML = buildCryHintHTML(currentPokemon);
 }

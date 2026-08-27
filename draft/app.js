@@ -291,8 +291,8 @@ function getPokemonById(id) {
     return pokemonDatabase.find((pokemon) => pokemon.id === id);
 }
 
-function formatTypes(types) {
-    return types.map(translate).join(' / ');
+function buildTypeBadgesHTML(types) {
+    return types.map((type) => `<span class="type-badge type-${type}">${translate(type)}</span>`).join(' ');
 }
 
 function getGeneration(pokemonId) {
@@ -370,7 +370,7 @@ function getClueText(pokemon) {
         }
         case 'types':
         default:
-            return formatTypes(pokemon.types);
+            return buildTypeBadgesHTML(pokemon.types);
     }
 }
 
