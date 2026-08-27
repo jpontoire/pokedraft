@@ -20,6 +20,10 @@
             <p id="description-text"></p>
         </div>
 
+        <div id="no-description-actions" class="no-description-actions hidden">
+            <button type="button" id="view-alt-description-btn" class="pixel-btn small-btn"></button>
+        </div>
+
         <div id="sprite-container" class="sprite-container hidden">
             <img id="sprite-image" class="sprite-image" src="" alt="">
         </div>
@@ -42,7 +46,10 @@
         <form id="guess-form" class="guess-form">
             <input id="guess-input" class="pixel-input" type="text" list="pokemon-names" data-i18n-placeholder="guessPlaceholder" placeholder="Who's that Pokemon?" autocomplete="off">
             <datalist id="pokemon-names"></datalist>
-            <button type="submit" class="pixel-btn" data-i18n="submit">Submit</button>
+            <div class="guess-actions">
+                <button type="submit" class="pixel-btn" data-i18n="submit">Submit</button>
+                <button type="button" id="skip-btn" class="pixel-btn small-btn" data-i18n="skip">Skip</button>
+            </div>
         </form>
 
         <button id="next-btn" class="pixel-btn hidden" data-i18n="nextPokemon">Next Pokemon</button>

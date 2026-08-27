@@ -162,6 +162,19 @@ body {
     gap: 14px;
 }
 
+.guess-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.no-description-actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 .pixel-input {
     font-family: 'Press Start 2P', monospace;
     font-size: 13px;

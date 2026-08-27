@@ -11,8 +11,13 @@ let currentLang = localStorage.getItem(LANG_STORAGE_KEY) || 'fr';
 let pokemonDatabase = [];
 let currentPokemon = null;
 let wrongGuesses = 0;
+let roundOutcome = null;
+let descriptionLangOverride = null;
 
 const descriptionText = document.getElementById('description-text');
+const noDescriptionActions = document.getElementById('no-description-actions');
+const viewAltDescriptionBtn = document.getElementById('view-alt-description-btn');
+const skipBtn = document.getElementById('skip-btn');
 const spriteContainer = document.getElementById('sprite-container');
 const spriteImage = document.getElementById('sprite-image');
 const hintsContainer = document.getElementById('hints-container');
@@ -46,23 +51,56 @@ function setDialogue(key, params) {
     dialogueText.textContent = t(key, params);
 }
 
-// The dataset stores full language names (english/french) rather than the
-// short 'en'/'fr' codes used by currentLang, so this maps between them.
-function getPokemonName(pokemon) {
-    return currentLang === 'fr' ? pokemon.names.french : pokemon.names.english;
+// Maps short language codes (matching currentLang) to the dataset's key names.
+// Both `names` and `description` objects in pokemon.json use these same key
+// names. Add an entry here (and to LANG_NAME_KEYS/NO_DESCRIPTION_FALLBACK below)
+// when a new language is added to the dataset.
+const LANG_DATA_KEYS = { en: 'english', fr: 'french' };
+const LANG_NAME_KEYS = { en: 'langNameEnglish', fr: 'langNameFrench' };
+
+// Text used by build-db.js as a placeholder when a Pokemon has no flavor
+// text in a given language.
+const NO_DESCRIPTION_FALLBACK = { en: 'No description available.', fr: 'Description non disponible.' };
+
+function getPokemonName(pokemon, lang = currentLang) {
+    return pokemon.names[LANG_DATA_KEYS[lang]];
 }
 
-// Same english/french vs en/fr key mismatch as getPokemonName above.
-function getDescription(pokemon) {
-    return currentLang === 'fr' ? pokemon.description.french : pokemon.description.english;
+function getDescription(pokemon, lang = currentLang) {
+    return pokemon.description[LANG_DATA_KEYS[lang]];
+}
+
+function hasDescription(pokemon, lang = currentLang) {
+    return getDescription(pokemon, lang) !== NO_DESCRIPTION_FALLBACK[lang];
+}
+
+// Finds a language other than the given one that has a real description
+function findAlternateLangWithDescription(pokemon) {
+    return Object.keys(LANG_DATA_KEYS).find((lang) => lang !== currentLang && hasDescription(pokemon, lang));
 }
 
 function buildTypeBadgesHTML(types) {
     return types.map((type) => `<span class="type-badge type-${type}">${translate(type)}</span>`).join(' ');
 }
 
-function isRoundSolved() {
-    return !spriteContainer.classList.contains('hidden');
+function renderDescription() {
+    const lang = descriptionLangOverride || currentLang;
+
+    if (hasDescription(currentPokemon, lang)) {
+        descriptionText.textContent = getDescription(currentPokemon, lang);
+        noDescriptionActions.classList.add('hidden');
+        return;
+    }
+
+    descriptionText.textContent = translate('dlgDescriptionMissing');
+
+    const altLang = findAlternateLangWithDescription(currentPokemon);
+    if (altLang) {
+        viewAltDescriptionBtn.textContent = t('viewDescriptionIn', { lang: translate(LANG_NAME_KEYS[altLang]) });
+        noDescriptionActions.classList.remove('hidden');
+    } else {
+        noDescriptionActions.classList.add('hidden');
+    }
 }
 
 function buildCryHintHTML(pokemon) {
@@ -95,10 +133,12 @@ function updateUILanguage() {
     }
 
     if (currentPokemon) {
-        descriptionText.textContent = getDescription(currentPokemon);
+        renderDescription();
         renderHints();
-        if (isRoundSolved()) {
+        if (roundOutcome === 'correct') {
             setDialogue('dlgCorrect', { name: getPokemonName(currentPokemon) });
+        } else if (roundOutcome === 'skipped') {
+            setDialogue('dlgSkipped', { name: getPokemonName(currentPokemon) });
         }
     }
 }
@@ -117,8 +157,10 @@ function pickRandomPokemon() {
 function startNewRound() {
     currentPokemon = pickRandomPokemon();
     wrongGuesses = 0;
+    roundOutcome = null;
+    descriptionLangOverride = null;
 
-    descriptionText.textContent = getDescription(currentPokemon);
+    renderDescription();
     renderHints();
 
     spriteContainer.classList.add('hidden');
@@ -171,20 +213,31 @@ function handleWrongGuess() {
     }
 }
 
-function handleCorrectGuess() {
+function revealAnswer() {
     spriteImage.src = currentPokemon.media.sprite;
     spriteImage.alt = getPokemonName(currentPokemon);
     spriteContainer.classList.remove('hidden');
 
     guessForm.classList.add('hidden');
     nextBtn.classList.remove('hidden');
+}
+
+function handleCorrectGuess() {
+    roundOutcome = 'correct';
+    revealAnswer();
     setDialogue('dlgCorrect', { name: getPokemonName(currentPokemon) });
+}
+
+function handleSkip() {
+    roundOutcome = 'skipped';
+    revealAnswer();
+    setDialogue('dlgSkipped', { name: getPokemonName(currentPokemon) });
 }
 
 function isGuessCorrect(guess) {
     const normalizedGuess = guess.toLowerCase();
-    return normalizedGuess === currentPokemon.names.english.toLowerCase()
-        || normalizedGuess === currentPokemon.names.french.toLowerCase();
+    return Object.values(LANG_DATA_KEYS)
+        .some((key) => currentPokemon.names[key].toLowerCase() === normalizedGuess);
 }
 
 async function loadPokemonDatabase() {
@@ -222,8 +275,22 @@ nextBtn.addEventListener('click', () => {
     startNewRound();
 });
 
+skipBtn.addEventListener('click', () => {
+    if (!currentPokemon || roundOutcome) return;
+    handleSkip();
+});
+
+viewAltDescriptionBtn.addEventListener('click', () => {
+    if (!currentPokemon) return;
+    const altLang = findAlternateLangWithDescription(currentPokemon);
+    if (!altLang) return;
+    descriptionLangOverride = altLang;
+    renderDescription();
+});
+
 langToggleBtn.addEventListener('click', () => {
     currentLang = currentLang === 'fr' ? 'en' : 'fr';
+    descriptionLangOverride = null;
     localStorage.setItem(LANG_STORAGE_KEY, currentLang);
     updateUILanguage();
 });
