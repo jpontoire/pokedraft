@@ -17,12 +17,45 @@ function extractIconUrl(data) {
     return genViiiIcon || genViiIcon || data.sprites.front_default;
 }
 
+// Converts a roman numeral string (e.g. "IX") into its integer value.
+function romanNumeralToInt(roman) {
+    const values = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+    let total = 0;
+    for (let i = 0; i < roman.length; i++) {
+        const current = values[roman[i]];
+        const next = values[roman[i + 1]];
+        if (next && current < next) {
+            total -= current;
+        } else {
+            total += current;
+        }
+    }
+    return total;
+}
+
+// Parses a PokeAPI generation name like "generation-ix" into its integer
+// generation number (9).
+function parseGenerationNumber(generationName) {
+    const romanPart = generationName.split('-')[1].toUpperCase();
+    return romanNumeralToInt(romanPart);
+}
+
 // Recursively walks an evolution-chain `chain` node and collects every
 // species slug in the family (the node itself plus all of its evolutions).
 function extractFamilySpeciesSlugs(chainNode, slugs = []) {
     slugs.push(chainNode.species.name);
     chainNode.evolves_to.forEach((childNode) => extractFamilySpeciesSlugs(childNode, slugs));
     return slugs;
+}
+
+// Recursively walks an evolution-chain `chain` node and maps every species
+// slug in the family to its stage: 1 for the base form, 2 for its direct
+// evolutions, 3 for theirs. The standard games never go past 3 stages, so
+// this never needs to go deeper.
+function extractFamilyStages(chainNode, stage = 1, stages = {}) {
+    stages[chainNode.species.name] = stage;
+    chainNode.evolves_to.forEach((childNode) => extractFamilyStages(childNode, stage + 1, stages));
+    return stages;
 }
 
 async function fetchPokemonData() {
@@ -70,6 +103,7 @@ async function fetchPokemonData() {
                     color: species.color ? species.color.name : "unknown",
                     shape: species.shape ? species.shape.name : "unknown",
                     habitat: species.habitat ? species.habitat.name : "unknown",
+                    generation: species.generation ? parseGenerationNumber(species.generation.name) : null,
                     is_legendary: species.is_legendary,
                     is_mythical: species.is_mythical
                 },
@@ -95,9 +129,11 @@ async function fetchPokemonData() {
             finalDatabase.push(pokemonObject);
             speciesSlugToPokemon.set(data.name, pokemonObject);
 
-            // Stashed temporarily; resolved into `familyNames` in the second
-            // pass below, then deleted before the file is written.
+            // Stashed temporarily; resolved into `familyNames` and
+            // `attributes.evolutionStage` in the second pass below, then
+            // deleted before the file is written.
             pokemonObject._evolutionChainUrl = species.evolution_chain ? species.evolution_chain.url : null;
+            pokemonObject._speciesSlug = data.name;
 
             // Progress log every 50 Pokemon
             if (i % 50 === 0) {
@@ -118,12 +154,15 @@ async function fetchPokemonData() {
 
     for (const pokemonObject of finalDatabase) {
         const chainUrl = pokemonObject._evolutionChainUrl;
+        const speciesSlug = pokemonObject._speciesSlug;
         delete pokemonObject._evolutionChainUrl;
+        delete pokemonObject._speciesSlug;
 
         const ownNames = [pokemonObject.names.english, pokemonObject.names.french];
 
         if (!chainUrl) {
             pokemonObject.familyNames = ownNames;
+            pokemonObject.attributes.evolutionStage = 1;
             continue;
         }
 
@@ -142,9 +181,13 @@ async function fetchPokemonData() {
                 .flatMap((familyMember) => [familyMember.names.english, familyMember.names.french]);
 
             pokemonObject.familyNames = familyNames.length > 0 ? familyNames : ownNames;
+
+            const familyStages = extractFamilyStages(chainData.chain);
+            pokemonObject.attributes.evolutionStage = familyStages[speciesSlug] || 1;
         } catch (error) {
             console.error(`Error fetching evolution chain for ${pokemonObject.names.english}:`, error);
             pokemonObject.familyNames = ownNames;
+            pokemonObject.attributes.evolutionStage = 1;
         }
     }
 

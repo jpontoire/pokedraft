@@ -7,5 +7,6 @@ const i18n = {
     playDraft: { en: 'Play PokeDraft', fr: 'Jouer à PokeDraft' },
     playZoom: { en: 'Play PokeZoom', fr: 'Jouer à PokeZoom' },
     playDex: { en: 'Play DexGuess', fr: 'Jouer à DexGuess' },
-    playPalette: { en: 'Play PokePalette', fr: 'Jouer à PokePalette' }
+    playPalette: { en: 'Play PokePalette', fr: 'Jouer à PokePalette' },
+    playGrid: { en: 'Play PokeGrid', fr: 'Jouer à PokeGrid' }
 };
