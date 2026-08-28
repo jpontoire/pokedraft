@@ -32,6 +32,8 @@ const pageI18n = {
     yourTeamYou: { en: 'Your Team (You)', fr: 'Votre Équipe (Vous)' },
     copy: { en: 'Copy', fr: 'Copier' },
     copied: { en: 'Copied!', fr: 'Copié !' },
+    shareCode: { en: 'Share Code', fr: 'Partager le Code' },
+    shareRoomText: { en: 'Join my PokeDraft room! Code: {id}', fr: 'Rejoins ma partie PokeDraft ! Code : {id}' },
     nextTurn: { en: 'Next Turn', fr: 'Tour Suivant' },
     seeResults: { en: 'See Results', fr: 'Voir les Résultats' },
     exportTeam: { en: 'Export Team to Showdown', fr: 'Exporter vers Showdown' },

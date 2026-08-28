@@ -82,6 +82,7 @@ const opponentTeamSlots = document.getElementById('opponent-team-slots');
 const roomIdBar = document.getElementById('room-id-bar');
 const roomIdText = document.getElementById('room-id-text');
 const copyIdBtn = document.getElementById('copy-id-btn');
+const shareIdBtn = document.getElementById('share-id-btn');
 const langToggleBtn = document.getElementById('lang-toggle');
 
 const hostBtn = document.getElementById('host-btn');
@@ -693,6 +694,36 @@ copyIdBtn.addEventListener('click', () => {
         });
 });
 
+shareIdBtn.addEventListener('click', () => {
+    if (!hostRoomId) return;
+
+    const shareText = t('shareRoomText', { id: hostRoomId });
+
+    if (navigator.share) {
+        navigator.share({ title: 'PokeDraft', text: shareText }).catch((error) => {
+            // AbortError just means the player closed the native share sheet
+            // without picking anything -- not a real failure.
+            if (error.name !== 'AbortError') {
+                console.error('Failed to share the room code:', error);
+            }
+        });
+        return;
+    }
+
+    // Devices without the Web Share API (most desktop browsers) fall back to
+    // clipboard copy, with the same button-text confirmation as Copy ID.
+    navigator.clipboard.writeText(hostRoomId)
+        .then(() => {
+            shareIdBtn.textContent = translate('copied');
+            setTimeout(() => {
+                shareIdBtn.textContent = translate('shareCode');
+            }, 2000);
+        })
+        .catch((error) => {
+            console.error('Failed to copy the room ID:', error);
+        });
+});
+
 langToggleBtn.addEventListener('click', () => {
     currentLang = currentLang === 'fr' ? 'en' : 'fr';
     localStorage.setItem(LANG_STORAGE_KEY, currentLang);
@@ -878,6 +909,10 @@ function hostGame() {
         console.error('Peer error:', error);
         setDialogue('dlgConnectionError');
     });
+
+    peer.on('disconnected', () => {
+        console.log('Peer disconnected from the signaling server (will attempt to reconnect once the tab is visible again).');
+    });
 }
 
 function joinGame(roomId) {
@@ -902,6 +937,10 @@ function joinGame(roomId) {
         console.error('Peer error:', error);
         setDialogue('dlgConnectionError');
     });
+
+    peer.on('disconnected', () => {
+        console.log('Peer disconnected from the signaling server (will attempt to reconnect once the tab is visible again).');
+    });
 }
 
 hostBtn.addEventListener('click', () => {
@@ -916,6 +955,16 @@ joinConfirmBtn.addEventListener('click', () => {
     const roomId = joinRoomInput.value.trim();
     if (roomId) {
         joinGame(roomId);
+    }
+});
+
+// Mobile browsers commonly drop the PeerJS signaling connection when the tab
+// is backgrounded (screen lock, app switch, etc). peer.disconnected only
+// means the signaling socket is down -- reconnecting restores it without
+// losing the active game state, unlike peer.destroyed which is unrecoverable.
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && peer && peer.disconnected && !peer.destroyed) {
+        peer.reconnect();
     }
 });
 
