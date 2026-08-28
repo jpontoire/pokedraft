@@ -87,6 +87,10 @@
                             </select>
                         </div>
 
+                        <div class="settings-group">
+                            <label class="checkbox-option"><input type="checkbox" id="allow-lying-checkbox"> <span data-i18n="enableDeceptionMode">Enable Deception Mode</span></label>
+                        </div>
+
                         <button id="start-draft-btn" class="pixel-btn" data-i18n="startDraft">Start Draft</button>
                     </div>
 
@@ -103,6 +107,22 @@
                     </div>
                     <p id="turn-info" class="turn-info"></p>
                     <div id="lab-desk" class="lab-desk"></div>
+
+                    <!-- Deception Panel: only ever shown to the current Guide, while
+                         they decide whether to fake one slot's clue for this turn. -->
+                    <div id="deception-panel" class="deception-panel hidden">
+                        <p class="deception-title" data-i18n="deceptionPanelTitle">Deception Mode: Configure a Lie</p>
+                        <div class="deception-slot-buttons">
+                            <button type="button" class="pixel-btn small-btn deception-slot-btn" data-slot-index="0">Fake Slot 1</button>
+                            <button type="button" class="pixel-btn small-btn deception-slot-btn" data-slot-index="1">Fake Slot 2</button>
+                            <button type="button" class="pixel-btn small-btn deception-slot-btn" data-slot-index="2">Fake Slot 3</button>
+                        </div>
+                        <div class="autocomplete-wrapper deception-search-wrapper">
+                            <input id="deception-fake-input" class="pixel-input" type="text" data-i18n-placeholder="deceptionSearchPlaceholder" placeholder="Search a Pokemon to fake..." autocomplete="off">
+                            <ul id="deception-fake-suggestions" class="autocomplete-list hidden"></ul>
+                        </div>
+                        <button type="button" id="deception-confirm-btn" class="pixel-btn" data-i18n="confirmTurn">Confirm &amp; Start Turn</button>
+                    </div>
                 </section>
 
                 <!-- Dialogue Box -->
@@ -127,6 +147,7 @@
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="../translations/shared.js"></script>
     <script src="../translations/draft.js"></script>
+    <script src="../autocomplete.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

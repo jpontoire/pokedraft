@@ -59,6 +59,14 @@ let guestTeam = [];
 let hostRoomId = null;
 let draftJustCompleted = false;
 
+// Deception Mode state, local to whichever peer is currently the Guide.
+let selectedLieSlotIndex = null;
+let selectedFakeMonId = null;
+let deceptionOnConfirm = null;
+// Set on the Host while waiting for the Guest (as Guide) to reply with their
+// deception-config choice, so the Picker's turn can't start before then.
+let pendingPickerTurnData = null;
+
 const lobbyScreen = document.getElementById('lobby-screen');
 const settingsScreen = document.getElementById('settings-screen');
 const gameScreen = document.getElementById('game-screen');
@@ -92,7 +100,14 @@ const mythicalMinInput = document.getElementById('mythical-min');
 const mythicalMaxInput = document.getElementById('mythical-max');
 const symmetricalMythicalsCheckbox = document.getElementById('symmetrical-mythicals');
 const clueSelect = document.getElementById('clue-select');
+const allowLyingCheckbox = document.getElementById('allow-lying-checkbox');
 const startDraftBtn = document.getElementById('start-draft-btn');
+
+const deceptionPanel = document.getElementById('deception-panel');
+const deceptionSlotButtonsContainer = deceptionPanel.querySelector('.deception-slot-buttons');
+const deceptionFakeInput = document.getElementById('deception-fake-input');
+const deceptionFakeSuggestions = document.getElementById('deception-fake-suggestions');
+const deceptionConfirmBtn = document.getElementById('deception-confirm-btn');
 
 function setDialogue(key, params) {
     dialogueText.textContent = t(key, params);
@@ -123,6 +138,7 @@ function updateUILanguage() {
     }
 
     renderTeamPanels();
+    renderDeceptionSlotButtons();
 
     if (hostRoomId && !roomIdBar.classList.contains('hidden')) {
         roomIdText.textContent = t('roomIdLabel', { id: hostRoomId });
@@ -224,7 +240,9 @@ function pickRandomStarterIds(pickerIsHostForTurn) {
         ...drawFromPool(standardPool, numStdToDraw, draftedIds)
     ];
 
-    return shuffle(drawn).map((pokemon) => pokemon.id);
+    // fakeClueId starts null (no lie); Deception Mode fills it in per-slot
+    // before a turn is broadcast, without ever touching the real id.
+    return shuffle(drawn).map((pokemon) => ({ id: pokemon.id, fakeClueId: null }));
 }
 
 function getClueText(pokemon) {
@@ -313,20 +331,38 @@ function updateTurnInfo() {
     turnInfo.textContent = t('turnInfoTemplate', { turn: currentTurn, max: MAX_TURNS, role });
 }
 
-function buildSlotHTML(pokemonId, index) {
-    const pokemon = getPokemonById(pokemonId);
+function buildSlotHTML(slot, index) {
+    const pokemon = getPokemonById(slot.id);
     const wasPickedHere = pickedSlotIndex === index;
     const wasPassedOver = allSlotsRevealed && pickedSlotIndex !== null && !wasPickedHere;
     const isRevealed = !amIPicker() || wasPickedHere || allSlotsRevealed;
     const isClickable = amIPicker() && pickedSlotIndex === null;
 
+    // What the Picker sees while this slot is still blind: the Guide's
+    // configured lie, if any, otherwise the real Pokemon.
+    const blindCluePokemon = slot.fakeClueId !== null ? getPokemonById(slot.fakeClueId) : pokemon;
+    // The Picker sees this before they've revealed the slot themselves. The
+    // Guide previews the exact same blind clue (fake included) before
+    // anyone has picked this turn, so they can judge their lie against the
+    // real hints instead of flying blind about their own deception. Once
+    // any pick happens, everyone reverts to the true clue -- it should line
+    // up with the sprite that's now visible instead of contradicting it.
+    const isBlindPickerView = amIPicker() && !isRevealed;
+    const isGuidePreview = !amIPicker() && pickedSlotIndex === null;
+    const cluePokemon = (isBlindPickerView || isGuidePreview) ? blindCluePokemon : pokemon;
+    // Only the Guide should ever know a slot's clue is fake -- showing this
+    // to the Picker would give the lie away entirely.
+    const showLieBadge = !amIPicker() && slot.fakeClueId !== null;
+
     const slotClasses = ['draft-slot'];
     if (isClickable) slotClasses.push('clickable');
     if (wasPickedHere) slotClasses.push('selected');
     if (wasPassedOver) slotClasses.push('not-chosen');
+    if (showLieBadge) slotClasses.push('deception-target');
 
-    const clueHTML = buildClueHTML(pokemon);
+    const clueHTML = buildClueHTML(cluePokemon);
     const pokemonName = getPokemonName(pokemon);
+    const lieBadgeHTML = showLieBadge ? `<p class="slot-clue-label deception-badge">${translate('deceptionBadge')}</p>` : '';
 
     if (isRevealed) {
         const tooltip = `${pokemonName} (#${pokemon.id})`;
@@ -335,12 +371,15 @@ function buildSlotHTML(pokemonId, index) {
                 <div class="${slotClasses.join(' ')}" data-slot="${index}" data-tooltip="${tooltip}">
                     <img class="pokemon-sprite" src="${pokemon.media.sprite}" alt="${pokemonName}">
                 </div>
-                ${wasPickedHere ? clueHTML : ''}
+                ${(wasPickedHere || isGuidePreview) ? clueHTML : ''}
                 ${wasPassedOver ? `<p class="slot-clue-label not-chosen-label">${translate('notChosen')}</p>` : ''}
+                ${lieBadgeHTML}
             </div>
         `;
     }
 
+    // Reachable only when !isRevealed, which requires amIPicker() to be true
+    // -- so showLieBadge (which requires the opposite) is always false here.
     return `
         <div class="slot-wrapper">
             <div class="${slotClasses.join(' ')}" data-slot="${index}">
@@ -353,7 +392,7 @@ function buildSlotHTML(pokemonId, index) {
 
 function renderSlots() {
     labDesk.classList.remove('showcase');
-    labDesk.innerHTML = currentStarterIds.map((id, index) => buildSlotHTML(id, index)).join('');
+    labDesk.innerHTML = currentStarterIds.map((slot, index) => buildSlotHTML(slot, index)).join('');
 }
 
 function animateSlot(index) {
@@ -432,7 +471,7 @@ function endDraft() {
 }
 
 function finalizePick(index) {
-    const pokemon = getPokemonById(currentStarterIds[index]);
+    const pokemon = getPokemonById(currentStarterIds[index].id);
     const isFinalTurn = currentTurn >= MAX_TURNS;
 
     renderSlots();
@@ -464,7 +503,7 @@ function handleSlotClick(index) {
     if (!amIPicker() || pickedSlotIndex !== null) return;
 
     pickedSlotIndex = index;
-    const pickedId = currentStarterIds[index];
+    const pickedId = currentStarterIds[index].id;
     addPickToTeam(pickedId, pickerIsHostThisTurn);
     finalizePick(index);
 
@@ -473,7 +512,7 @@ function handleSlotClick(index) {
 
 function applyRemotePick(index) {
     pickedSlotIndex = index;
-    const pickedId = currentStarterIds[index];
+    const pickedId = currentStarterIds[index].id;
     addPickToTeam(pickedId, pickerIsHostThisTurn);
     finalizePick(index);
 }
@@ -493,28 +532,121 @@ function startTurn(data) {
     setDialogue(amIPicker() ? 'dlgChooseStarter' : 'dlgGuidePartner');
 }
 
+function renderDeceptionSlotButtons() {
+    deceptionSlotButtonsContainer.querySelectorAll('.deception-slot-btn').forEach((btn) => {
+        const slotIndex = Number(btn.dataset.slotIndex);
+        btn.textContent = t('fakeSlotTemplate', { n: slotIndex + 1 });
+        btn.classList.toggle('active', selectedLieSlotIndex === slotIndex);
+    });
+}
+
+// Recomputes which slot (if any) currently carries a fake clue from the
+// Guide's slot + fake Pokemon selection, then re-renders so the
+// deception-target badge shows up immediately as they experiment.
+function applyDeceptionSelection() {
+    currentStarterIds.forEach((slot) => { slot.fakeClueId = null; });
+    if (selectedLieSlotIndex !== null && selectedFakeMonId !== null) {
+        currentStarterIds[selectedLieSlotIndex].fakeClueId = selectedFakeMonId;
+    }
+    renderDeceptionSlotButtons();
+    renderSlots();
+}
+
+const deceptionAutocomplete = createPokemonAutocomplete({
+    input: deceptionFakeInput,
+    list: deceptionFakeSuggestions,
+    getPokemonList: () => pokemonDatabase,
+    getName: getPokemonName,
+    getIconUrl: (pokemon) => pokemon.media.icon,
+    onSelect: (pokemon) => {
+        selectedFakeMonId = pokemon.id;
+        applyDeceptionSelection();
+    }
+});
+
+// Shows the Deception Panel to the local Guide for the turn currently
+// rendered via startTurn(). onConfirm is called once they click "Confirm &
+// Start Turn", whether or not they configured a lie.
+function openDeceptionPanel(onConfirm) {
+    selectedLieSlotIndex = null;
+    selectedFakeMonId = null;
+    deceptionFakeInput.value = '';
+    deceptionAutocomplete.close();
+    deceptionOnConfirm = onConfirm;
+    renderDeceptionSlotButtons();
+    deceptionPanel.classList.remove('hidden');
+    nextTurnBtn.classList.add('hidden');
+}
+
+function closeDeceptionPanel() {
+    deceptionPanel.classList.add('hidden');
+    deceptionOnConfirm = null;
+}
+
+deceptionSlotButtonsContainer.addEventListener('click', (event) => {
+    const btn = event.target.closest('.deception-slot-btn');
+    if (!btn) return;
+    const slotIndex = Number(btn.dataset.slotIndex);
+    // Clicking the already-active slot deselects it (no lie configured).
+    selectedLieSlotIndex = selectedLieSlotIndex === slotIndex ? null : slotIndex;
+    applyDeceptionSelection();
+});
+
+deceptionConfirmBtn.addEventListener('click', () => {
+    const onConfirm = deceptionOnConfirm;
+    closeDeceptionPanel();
+    if (onConfirm) onConfirm();
+});
+
+// Draws the next turn's starters, then either sends it straight to the
+// Picker (Deception Mode off) or routes it through whichever peer is this
+// turn's Guide so they get a chance to configure a lie first.
+function beginTurn(turnData) {
+    if (!gameSettings.allowLying) {
+        connection.send({ type: 'turn-start', ...turnData });
+        startTurn(turnData);
+        return;
+    }
+
+    const hostIsGuide = !turnData.pickerIsHost;
+
+    if (hostIsGuide) {
+        // The Host is the Guide this turn: preview the real draw locally and
+        // let them configure a lie before the Picker (the Guest) receives it.
+        startTurn(turnData);
+        openDeceptionPanel(() => {
+            connection.send({ type: 'turn-start', ...turnData });
+        });
+        return;
+    }
+
+    // The Guest will be the Guide this turn -- send them the real draw
+    // privately first and wait for their decision before starting the
+    // Picker's (this Host's) turn.
+    pendingPickerTurnData = turnData;
+    showGameScreen();
+    roomIdBar.classList.add('hidden');
+    nextTurnBtn.classList.add('hidden');
+    setDialogue('dlgWaitingForGuideDeception');
+    connection.send({ type: 'turn-preview', ...turnData });
+}
+
 function advanceTurn() {
     const nextPickerIsHost = !pickerIsHostThisTurn;
-    const turnData = {
+    beginTurn({
         turn: currentTurn + 1,
         pickerIsHost: nextPickerIsHost,
         starterIds: pickRandomStarterIds(nextPickerIsHost)
-    };
-
-    connection.send({ type: 'turn-start', ...turnData });
-    startTurn(turnData);
+    });
 }
 
 function startDraft() {
     const pickerIsHost = Math.random() < 0.5;
-    const turnData = {
+    beginTurn({
         turn: 1,
         pickerIsHost,
         starterIds: pickRandomStarterIds(pickerIsHost)
-    };
-
-    connection.send({ type: 'turn-start', ...turnData });
-    startTurn(turnData);
+    });
 }
 
 labDesk.addEventListener('click', (event) => {
@@ -612,7 +744,8 @@ startDraftBtn.addEventListener('click', () => {
         guestLegTurns: pickUniqueTurns(guestLegendaryTarget),
         hostMythTurns: pickUniqueTurns(hostMythicalTarget),
         guestMythTurns: pickUniqueTurns(guestMythicalTarget),
-        clueType: clueSelect.value
+        clueType: clueSelect.value,
+        allowLying: allowLyingCheckbox.checked
     };
 
     const { legendaryPool, mythicalPool, standardPool } = getFilteredPokedex(newSettings);
@@ -676,6 +809,32 @@ function setupConnectionEvents(conn) {
                 break;
             case 'request-next-turn':
                 if (isHost) advanceTurn();
+                break;
+            case 'turn-preview':
+                // Sent only when this peer (the Guest) will be the Guide this
+                // turn under Deception Mode: preview the real draw, then let
+                // them configure an optional lie before the Host's Picker
+                // turn is allowed to start.
+                startTurn(data);
+                openDeceptionPanel(() => {
+                    connection.send({
+                        type: 'deception-config',
+                        lieSlotIndex: selectedLieSlotIndex,
+                        fakeMonId: selectedFakeMonId
+                    });
+                });
+                break;
+            case 'deception-config':
+                // Sent only to the Host, who is waiting to start their own
+                // Picker turn once the Guest (Guide) has decided on a lie.
+                if (pendingPickerTurnData) {
+                    if (data.lieSlotIndex !== null && data.fakeMonId !== null) {
+                        pendingPickerTurnData.starterIds[data.lieSlotIndex].fakeClueId = data.fakeMonId;
+                    }
+                    connection.send({ type: 'turn-start', ...pendingPickerTurnData });
+                    startTurn(pendingPickerTurnData);
+                    pendingPickerTurnData = null;
+                }
                 break;
             default:
                 console.warn('Unknown message type received:', data.type);
