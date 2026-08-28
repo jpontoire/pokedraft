@@ -44,8 +44,10 @@
         </div>
 
         <form id="guess-form" class="guess-form">
-            <input id="guess-input" class="pixel-input" type="text" list="pokemon-names" data-i18n-placeholder="guessPlaceholder" placeholder="Who's that Pokemon?" autocomplete="off">
-            <datalist id="pokemon-names"></datalist>
+            <div class="autocomplete-wrapper">
+                <input id="guess-input" class="pixel-input" type="text" data-i18n-placeholder="guessPlaceholder" placeholder="Who's that Pokemon?" autocomplete="off">
+                <ul id="guess-suggestions" class="autocomplete-list hidden"></ul>
+            </div>
             <div class="guess-actions">
                 <button type="submit" class="pixel-btn" data-i18n="submit">Submit</button>
                 <button type="button" id="skip-btn" class="pixel-btn small-btn" data-i18n="skip">Skip</button>
@@ -61,6 +63,7 @@
 
     <script src="../translations/shared.js"></script>
     <script src="../translations/dex.js"></script>
+    <script src="../autocomplete.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -29,7 +29,7 @@ const hintCry = document.getElementById('hint-cry');
 const hintCryContent = document.getElementById('hint-cry-content');
 const guessForm = document.getElementById('guess-form');
 const guessInput = document.getElementById('guess-input');
-const pokemonNamesList = document.getElementById('pokemon-names');
+const guessSuggestions = document.getElementById('guess-suggestions');
 const nextBtn = document.getElementById('next-btn');
 const dialogueText = document.getElementById('dialogue-text');
 const langToggleBtn = document.getElementById('lang-toggle');
@@ -151,10 +151,6 @@ function updateUILanguage() {
         el.placeholder = translate(el.getAttribute('data-i18n-placeholder'));
     });
 
-    if (pokemonDatabase.length > 0) {
-        populateNamesDatalist();
-    }
-
     if (currentPokemon) {
         renderDescription();
         renderHints();
@@ -166,11 +162,14 @@ function updateUILanguage() {
     }
 }
 
-function populateNamesDatalist() {
-    pokemonNamesList.innerHTML = pokemonDatabase
-        .map((pokemon) => `<option value="${getPokemonName(pokemon)}"></option>`)
-        .join('');
-}
+const autocomplete = createPokemonAutocomplete({
+    input: guessInput,
+    list: guessSuggestions,
+    getPokemonList: () => pokemonDatabase,
+    getName: getPokemonName,
+    getIconUrl: (pokemon) => pokemon.media.icon,
+    onSelect: () => guessInput.focus()
+});
 
 function pickRandomPokemon() {
     const index = Math.floor(Math.random() * pokemonDatabase.length);
@@ -267,7 +266,6 @@ async function loadPokemonDatabase() {
     try {
         const response = await fetch('../data/pokemon.json');
         pokemonDatabase = await response.json();
-        populateNamesDatalist();
         startNewRound();
     } catch (error) {
         console.error('Failed to load Pokemon database:', error);
@@ -277,6 +275,7 @@ async function loadPokemonDatabase() {
 
 guessForm.addEventListener('submit', (event) => {
     event.preventDefault();
+    autocomplete.close();
 
     const guess = guessInput.value.trim();
     if (!guess || !currentPokemon) return;
@@ -300,6 +299,7 @@ nextBtn.addEventListener('click', () => {
 
 skipBtn.addEventListener('click', () => {
     if (!currentPokemon || roundOutcome) return;
+    autocomplete.close();
     handleSkip();
 });
 
