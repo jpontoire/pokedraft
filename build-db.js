@@ -6,6 +6,17 @@ function sanitizeText(text) {
     return text.replace(/[\n\f\r]+/g, ' ').trim();
 }
 
+// Picks a small icon sprite for autocomplete dropdowns. Prefers the
+// Generation VIII icon, falls back to Generation VII, and finally falls back
+// to the base front-facing sprite (always present) since Gen IX Pokemon have
+// neither of the versioned icon sprites.
+function extractIconUrl(data) {
+    const versions = data.sprites.versions || {};
+    const genViiiIcon = versions['generation-viii'] ? versions['generation-viii'].icons.front_default : null;
+    const genViiIcon = versions['generation-vii'] ? versions['generation-vii'].icons.front_default : null;
+    return genViiiIcon || genViiIcon || data.sprites.front_default;
+}
+
 // Recursively walks an evolution-chain `chain` node and collects every
 // species slug in the family (the node itself plus all of its evolutions).
 function extractFamilySpeciesSlugs(chainNode, slugs = []) {
@@ -72,6 +83,7 @@ async function fetchPokemonData() {
                 },
                 media: {
                     sprite: data.sprites.other['official-artwork'].front_default,
+                    icon: extractIconUrl(data),
                     cry: data.cries ? data.cries.latest : null
                 },
                 description: {
