@@ -100,7 +100,7 @@ const symmetricalLegendariesCheckbox = document.getElementById('symmetrical-lege
 const mythicalMinInput = document.getElementById('mythical-min');
 const mythicalMaxInput = document.getElementById('mythical-max');
 const symmetricalMythicalsCheckbox = document.getElementById('symmetrical-mythicals');
-const clueSelect = document.getElementById('clue-select');
+const clueCheckboxes = document.getElementById('clue-checkboxes');
 const allowLyingCheckbox = document.getElementById('allow-lying-checkbox');
 const startDraftBtn = document.getElementById('start-draft-btn');
 
@@ -246,8 +246,8 @@ function pickRandomStarterIds(pickerIsHostForTurn) {
     return shuffle(drawn).map((pokemon) => ({ id: pokemon.id, fakeClueId: null }));
 }
 
-function getClueText(pokemon) {
-    switch (gameSettings.clueType) {
+function getClueText(pokemon, clueType) {
+    switch (clueType) {
         case 'color':
             return translate(pokemon.attributes.color);
         case 'shape':
@@ -310,10 +310,14 @@ function buildCryClueHTML(pokemon) {
     return `<button type="button" class="pixel-btn small-btn play-cry-btn" data-cry-url="${pokemon.media.cry}">${translate('playCry')}</button>`;
 }
 
+function buildSingleClueHTML(pokemon, clueType) {
+    if (clueType === 'base_stats') return buildStatBarsHTML(pokemon);
+    if (clueType === 'cry') return buildCryClueHTML(pokemon);
+    return `<p class="slot-clue-label">${getClueText(pokemon, clueType)}</p>`;
+}
+
 function buildClueHTML(pokemon) {
-    if (gameSettings.clueType === 'base_stats') return buildStatBarsHTML(pokemon);
-    if (gameSettings.clueType === 'cry') return buildCryClueHTML(pokemon);
-    return `<p class="slot-clue-label">${getClueText(pokemon)}</p>`;
+    return gameSettings.clueTypes.map((clueType) => buildSingleClueHTML(pokemon, clueType)).join('');
 }
 
 function amIPicker() {
@@ -740,6 +744,15 @@ startDraftBtn.addEventListener('click', () => {
         return;
     }
 
+    const clueTypes = Array.from(
+        clueCheckboxes.querySelectorAll('input[type="checkbox"]:checked')
+    ).map((checkbox) => checkbox.value);
+
+    if (clueTypes.length === 0) {
+        setDialogue('dlgSelectClue');
+        return;
+    }
+
     const legendaryMin = Number(legendaryMinInput.value);
     const legendaryMax = Number(legendaryMaxInput.value);
     const mythicalMin = Number(mythicalMinInput.value);
@@ -775,7 +788,7 @@ startDraftBtn.addEventListener('click', () => {
         guestLegTurns: pickUniqueTurns(guestLegendaryTarget),
         hostMythTurns: pickUniqueTurns(hostMythicalTarget),
         guestMythTurns: pickUniqueTurns(guestMythicalTarget),
-        clueType: clueSelect.value,
+        clueTypes,
         allowLying: allowLyingCheckbox.checked
     };
 
