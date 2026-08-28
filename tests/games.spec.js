@@ -3,18 +3,19 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Portal', () => {
-    test('loads and shows all 4 game buttons', async ({ page }) => {
+    test('loads and shows all 5 game buttons', async ({ page }) => {
         await page.goto('/');
 
         await expect(page.locator('.portal-title')).toBeVisible();
 
         const gameButtons = page.locator('a.portal-btn');
-        await expect(gameButtons).toHaveCount(4);
+        await expect(gameButtons).toHaveCount(5);
 
         await expect(page.locator('a[href="./draft/"]')).toBeVisible();
         await expect(page.locator('a[href="./zoom/"]')).toBeVisible();
         await expect(page.locator('a[href="./dex/"]')).toBeVisible();
         await expect(page.locator('a[href="./palette/"]')).toBeVisible();
+        await expect(page.locator('a[href="./grid/"]')).toBeVisible();
     });
 });
 
@@ -66,6 +67,50 @@ test.describe('DexGuess', () => {
         // First wrong guess: HINT_THRESHOLDS is [3, 5, 7], so this lands on the
         // "2 guesses left until the next hint" countdown message.
         await expect(page.locator('#dialogue-text')).toHaveText('Faux ! Encore 2 essai(s) avant le prochain indice.');
+    });
+});
+
+test.describe('PokeGrid', () => {
+    async function submitGuessViaAutocomplete(page, name) {
+        await page.locator('#guess-input').fill(name);
+        await expect(page.locator('#guess-suggestions')).not.toHaveClass(/hidden/);
+        await page.locator('#guess-suggestions .autocomplete-item').first().click();
+        await page.locator('#guess-form button[type="submit"]').click();
+    }
+
+    test('submitting a guess appends a fully-scored row', async ({ page }) => {
+        await page.goto('/grid/');
+
+        // Sprite, Type 1, Type 2, Habitat, Color, Gen, Evo Stage, Height, Weight.
+        await expect(page.locator('.grid-header .grid-cell')).toHaveCount(9);
+
+        // The site defaults to French, and the autocomplete filters against
+        // the currently displayed name -- Pikachu's name is identical in
+        // both languages, so this works without a language toggle.
+        await submitGuessViaAutocomplete(page, 'Pikachu');
+
+        const guessRow = page.locator('.guess-row');
+        await expect(guessRow).toHaveCount(1);
+        await expect(guessRow.locator('.grid-cell')).toHaveCount(9);
+        // Every evaluated cell (all but the sprite) carries a feedback class.
+        await expect(guessRow.locator('.grid-cell[class*="bg-"]')).toHaveCount(8);
+    });
+
+    test('a second guess appends below the first, and duplicate guesses are rejected', async ({ page }) => {
+        await page.goto('/grid/');
+
+        await submitGuessViaAutocomplete(page, 'Pikachu');
+        await submitGuessViaAutocomplete(page, 'Dracaufeu'); // Charizard's French name
+
+        const rows = page.locator('.guess-row');
+        await expect(rows).toHaveCount(2);
+        // Guessed first, so it stays on top; the second guess appends below it.
+        await expect(rows.nth(0).locator('img')).toHaveAttribute('alt', 'Pikachu');
+        await expect(rows.nth(1).locator('img')).toHaveAttribute('alt', 'Dracaufeu');
+
+        await submitGuessViaAutocomplete(page, 'Pikachu');
+        await expect(rows).toHaveCount(2);
+        await expect(page.locator('#dialogue-text')).toHaveText('Vous avez déjà proposé celui-là !');
     });
 });
 
