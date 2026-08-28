@@ -57,6 +57,7 @@ let allSlotsRevealed = false;
 let hostTeam = [];
 let guestTeam = [];
 let hostRoomId = null;
+let draftJustCompleted = false;
 
 const lobbyScreen = document.getElementById('lobby-screen');
 const settingsScreen = document.getElementById('settings-screen');
@@ -432,24 +433,30 @@ function endDraft() {
 
 function finalizePick(index) {
     const pokemon = getPokemonById(currentStarterIds[index]);
+    const isFinalTurn = currentTurn >= MAX_TURNS;
+
     renderSlots();
     animateSlot(index);
     updateTurnInfo();
     renderTeamPanels();
     setDialogue('dlgPokemonSelected', { name: getPokemonName(pokemon) });
 
-    if (currentTurn >= MAX_TURNS) {
-        endDraft();
-        return;
+    if (!isFinalTurn) {
+        nextTurnBtn.classList.remove('hidden');
     }
-
-    nextTurnBtn.classList.remove('hidden');
 
     const startersAtPick = currentStarterIds;
     setTimeout(() => {
         if (currentStarterIds !== startersAtPick) return;
         allSlotsRevealed = true;
         renderSlots();
+
+        if (isFinalTurn) {
+            draftJustCompleted = true;
+            nextTurnBtn.setAttribute('data-i18n', 'seeResults');
+            nextTurnBtn.textContent = translate('seeResults');
+            nextTurnBtn.classList.remove('hidden');
+        }
     }, 800);
 }
 
@@ -525,6 +532,11 @@ labDesk.addEventListener('click', (event) => {
 
 nextTurnBtn.addEventListener('click', () => {
     nextTurnBtn.classList.add('hidden');
+
+    if (draftJustCompleted) {
+        endDraft();
+        return;
+    }
 
     if (isHost) {
         advanceTurn();

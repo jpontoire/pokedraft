@@ -32,6 +32,7 @@ const pageI18n = {
     copy: { en: 'Copy', fr: 'Copier' },
     copied: { en: 'Copied!', fr: 'Copié !' },
     nextTurn: { en: 'Next Turn', fr: 'Tour Suivant' },
+    seeResults: { en: 'See Results', fr: 'Voir les Résultats' },
     exportTeam: { en: 'Export Team to Showdown', fr: 'Exporter vers Showdown' },
     notChosen: { en: 'Not Chosen', fr: 'Non Choisi' },
     draftComplete: { en: 'Draft complete!', fr: 'Draft terminée !' },
