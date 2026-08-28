@@ -25,6 +25,7 @@ const pageI18n = {
     clueBaseStats: { en: 'Base Stats', fr: 'Statistiques de Base' },
     clueTotalStats: { en: 'Total Base Stats', fr: 'Total des Statistiques' },
     clueCry: { en: 'Pokémon Cry (Audio)', fr: 'Cri du Pokémon (Audio)' },
+    enableDeceptionMode: { en: 'Enable Deception Mode', fr: 'Activer le Mode Tromperie' },
     startDraft: { en: 'Start Draft', fr: 'Lancer la Draft' },
     yourTeam: { en: 'Your Team', fr: 'Votre Équipe' },
     opponentTeam: { en: 'Opponent Team', fr: 'Équipe Adverse' },
@@ -41,6 +42,13 @@ const pageI18n = {
     turnInfoTemplate: { en: 'Turn {turn} / {max} — You are the {role}', fr: 'Tour {turn} / {max} — Vous êtes le {role}' },
     roomIdLabel: { en: 'Room ID: {id}', fr: 'ID de la Partie : {id}' },
 
+    // Deception Mode
+    deceptionPanelTitle: { en: 'Deception Mode: Configure a Lie', fr: 'Mode Tromperie : Configurez un Mensonge' },
+    fakeSlotTemplate: { en: 'Fake Slot {n}', fr: 'Truquer Emplacement {n}' },
+    deceptionSearchPlaceholder: { en: 'Search a Pokemon to fake...', fr: 'Cherchez un Pokémon à faire croire...' },
+    confirmTurn: { en: 'Confirm & Start Turn', fr: 'Confirmer et Lancer le Tour' },
+    deceptionBadge: { en: 'LIE', fr: 'MENSONGE' },
+
     // Dialogue box messages
     dlgWelcome: { en: 'Welcome, Trainer! Host or join a game to begin.', fr: 'Bienvenue, Dresseur ! Hébergez ou rejoignez une partie pour commencer.' },
     dlgRoomCreated: { en: 'Room created! Share this ID with your friend: {id}', fr: 'Partie créée ! Partagez cet ID avec votre ami : {id}' },
@@ -56,6 +64,7 @@ const pageI18n = {
     dlgPokemonSelected: { en: '{name} was selected!', fr: '{name} a été choisi !' },
     dlgWaitingNextTurn: { en: 'Waiting for the next turn...', fr: 'En attente du tour suivant...' },
     dlgDraftCompleteReady: { en: 'Draft complete! Your team is ready.', fr: 'Draft terminée ! Votre équipe est prête.' },
+    dlgWaitingForGuideDeception: { en: 'Waiting for the Guide to prepare this round...', fr: 'En attente de la préparation du Guide pour ce tour...' },
 
     // Alerts
     alertLegendaryMinMax: { en: 'Invalid settings! Min Legendaries cannot be greater than Max Legendaries.', fr: 'Paramètres invalides ! Le minimum de Légendaires ne peut pas dépasser le maximum.' },
