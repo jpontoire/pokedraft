@@ -142,13 +142,49 @@ body {
     text-transform: uppercase;
 }
 
-/* Sortable cards */
-.sortable-container {
+.sortable-row {
     width: 100%;
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     justify-content: center;
-    gap: 16px;
+    gap: 4px;
+    min-height: 150px;
+}
+
+.drop-gap {
+    width: 20px;
+    align-self: stretch;
+    min-height: 60px;
+    border: 3px dashed transparent;
+    border-radius: 4px;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+/* Highlighted while the mystery card is being dragged over it */
+.drop-gap.drag-over {
+    width: 60px;
+    border-color: var(--color-accent);
+    background-color: rgba(227, 53, 13, 0.15);
+}
+
+.mystery-card-caption {
+    margin: 0;
+    text-align: center;
+    font-size: 11px;
+    color: var(--color-text-light);
+}
+
+.mystery-card-slot {
+    /* Must stay a real, non-zero-area box even when the card currently
+       sitting in it has been dragged out into the row -- otherwise it
+       collapses to zero width (its content-based size with nothing inside)
+       and stops being a valid drop target to drag the card back onto. */
+    width: 150px;
+    min-height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sort-card {
@@ -188,25 +224,25 @@ body {
     pointer-events: none;
 }
 
+/* The still-unconfirmed card the player is currently placing */
+.sort-card.mystery {
+    border-style: dashed;
+    background-color: #e8e8de;
+}
+
+.sort-card.placed {
+    cursor: default;
+}
+
 /* Grabbed card, currently being dragged */
 .sort-card.grabbing {
     opacity: 0.4;
     cursor: grabbing;
 }
 
-/* Card currently under the cursor while dragging another card over it */
-.sort-card.drag-over {
-    border-color: var(--color-accent);
-    transform: scale(1.06);
-}
-
-/* Submit feedback */
-.sort-card.correct-slot {
-    border-color: var(--color-correct);
-    background-color: #e3f5e3;
-}
-
-.sort-card.incorrect-slot {
+/* Revealed after a wrong submission, showing where the mystery Pokemon
+   actually belonged. */
+.sort-card.reveal-wrong {
     border-color: var(--color-accent);
     background-color: #fbdedb;
 }
@@ -232,6 +268,10 @@ body {
         padding: 10px 8px;
     }
 
+    .mystery-card-slot {
+        width: 110px;
+    }
+
     .sort-card-sprite {
         width: 56px;
         height: 56px;
@@ -239,5 +279,14 @@ body {
 
     .sort-card-name {
         font-size: 9px;
+    }
+
+    .drop-gap {
+        width: 12px;
+        min-height: 40px;
+    }
+
+    .drop-gap.drag-over {
+        width: 40px;
     }
 }

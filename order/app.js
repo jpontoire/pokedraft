@@ -1,3 +1,5 @@
+// app.js
+
 const LANG_STORAGE_KEY = 'pokedraft-lang';
 const i18n = Object.assign({}, sharedI18n, pageI18n);
 
@@ -22,12 +24,28 @@ const CRITERION_LABEL_KEYS = {
 let currentLang = localStorage.getItem(LANG_STORAGE_KEY) || 'fr';
 let pokemonDatabase = [];
 let currentCriterion = null;
-let roundPokemon = [];
-let isRoundSolved = false;
-let draggedCard = null;
+// Pokemon confirmed into the row so far, always kept in true ascending order.
+let placedPokemon = [];
+// Pokemon not yet introduced to the player.
+let pendingQueue = [];
+// The Pokemon currently being placed (hidden stat, draggable), or null
+// between rounds / once every Pokemon has been placed.
+let mysteryPokemon = null;
+// Which gap the mystery Pokemon currently sits in (0..placedPokemon.length),
+// or null if it hasn't been dropped into the row yet.
+let mysteryGapIndex = null;
+let isRoundOver = false;
+// null while placing cards; 'success' or 'gameover' once the round ends,
+// so updateUILanguage() knows which persistent dialogue message to restore.
+let roundOutcome = null;
+// Kept after a failed submission so the game-over message can still be
+// re-translated correctly if the player switches language afterward.
+let lastFailedPokemon = null;
 
 const objectiveText = document.getElementById('objective-text');
-const sortableContainer = document.getElementById('sortable-container');
+const sortableRow = document.getElementById('sortable-row');
+const mysteryCardCaption = document.getElementById('mystery-card-caption');
+const mysteryCardSlot = document.getElementById('mystery-card-slot');
 const submitBtn = document.getElementById('submit-btn');
 const nextBtn = document.getElementById('next-btn');
 const dialogueText = document.getElementById('dialogue-text');
@@ -95,36 +113,9 @@ function drawRoundPokemon(criterion) {
     return selected;
 }
 
-function getCorrectOrderIds() {
-    return [...roundPokemon]
-        .sort((a, b) => getStatValue(a, currentCriterion) - getStatValue(b, currentCriterion))
-        .map((pokemon) => pokemon.id);
-}
-
-// Avoids starting a round with the cards already in the correct order,
-// which would make the round trivially "solved" without any dragging.
-function shuffleForDisplay() {
-    const correctOrderIds = getCorrectOrderIds();
-    let attempt = roundPokemon;
-    let attempts = 0;
-
-    do {
-        attempt = shuffle(roundPokemon);
-        attempts += 1;
-    } while (attempts < 10 && attempt.map((pokemon) => pokemon.id).join(',') === correctOrderIds.join(','));
-
-    return attempt;
-}
-
-function buildCardHTML(pokemon) {
-    const name = getPokemonName(pokemon);
-    return `
-        <div class="sort-card" draggable="true" data-pokemon-id="${pokemon.id}">
-            <img class="sort-card-sprite" src="${pokemon.media.sprite}" alt="${name}" draggable="false">
-            <p class="sort-card-name">${name}</p>
-            <p class="sort-card-stat hidden"></p>
-        </div>
-    `;
+// Where pokemon truly belongs among the already-placed (ascending) row.
+function getCorrectGapIndex(pokemon) {
+    return placedPokemon.filter((placed) => getStatValue(placed, currentCriterion) < getStatValue(pokemon, currentCriterion)).length;
 }
 
 function renderObjective() {
@@ -132,18 +123,59 @@ function renderObjective() {
     objectiveText.innerHTML = t('objectiveTemplate', { stat, direction: translate('ascendingLabel') });
 }
 
-// Re-applies the current language to the cards already on the board without
-// touching their order or submitted (correct/incorrect) state.
+function buildGapHTML(gapIndex) {
+    return `<div class="drop-gap" data-gap-index="${gapIndex}"></div>`;
+}
+
+function buildPlacedCardHTML(pokemon) {
+    const name = getPokemonName(pokemon);
+    return `
+        <div class="sort-card placed" data-pokemon-id="${pokemon.id}">
+            <img class="sort-card-sprite" src="${pokemon.media.sprite}" alt="${name}" draggable="false">
+            <p class="sort-card-name">${name}</p>
+            <p class="sort-card-stat">${formatStatValue(pokemon, currentCriterion)}</p>
+        </div>
+    `;
+}
+
+// Rebuilds the confirmed row: a drop-gap before, between, and after every
+// placed card (placedPokemon.length + 1 gaps total). Only called when the
+// confirmed set changes, never mid-drag, so it never disturbs the mystery
+// card while the player is positioning it.
+function renderRow() {
+    let html = buildGapHTML(0);
+    placedPokemon.forEach((pokemon, index) => {
+        html += buildPlacedCardHTML(pokemon);
+        html += buildGapHTML(index + 1);
+    });
+    sortableRow.innerHTML = html;
+}
+
+function buildMysteryCardHTML(pokemon) {
+    const name = getPokemonName(pokemon);
+    return `
+        <div class="sort-card mystery" draggable="true" data-pokemon-id="${pokemon.id}">
+            <img class="sort-card-sprite" src="${pokemon.media.sprite}" alt="${name}" draggable="false">
+            <p class="sort-card-name">${name}</p>
+            <p class="sort-card-stat">?</p>
+        </div>
+    `;
+}
+
+function renderMysteryCard() {
+    mysteryCardSlot.innerHTML = buildMysteryCardHTML(mysteryPokemon);
+    mysteryGapIndex = null;
+}
+
+// Re-applies the current language to every card on screen without touching
+// the row's order or the in-progress placement state.
 function refreshCardLabels() {
-    sortableContainer.querySelectorAll('.sort-card').forEach((card) => {
-        const pokemon = roundPokemon.find((p) => p.id === Number(card.dataset.pokemonId));
+    document.querySelectorAll('.sort-card').forEach((card) => {
+        const pokemonId = Number(card.dataset.pokemonId);
+        const pokemon = placedPokemon.find((p) => p.id === pokemonId)
+            || (mysteryPokemon && mysteryPokemon.id === pokemonId ? mysteryPokemon : null);
         if (!pokemon) return;
-
         card.querySelector('.sort-card-name').textContent = getPokemonName(pokemon);
-
-        if (isRoundSolved) {
-            card.querySelector('.sort-card-stat').textContent = formatStatValue(pokemon, currentCriterion);
-        }
     });
 }
 
@@ -162,52 +194,92 @@ function updateUILanguage() {
         // initial pre-load state), so the generic sweep above just reset it
         // to that regardless of the round's actual current message. Restore
         // whichever persistent message actually applies right now.
-        setDialogue(isRoundSolved ? 'dlgSuccess' : 'dlgPrompt');
+        if (roundOutcome === 'success') {
+            setDialogue('dlgSuccess');
+        } else if (roundOutcome === 'gameover') {
+            setDialogue('dlgGameOver', { name: getPokemonName(lastFailedPokemon) });
+        } else {
+            setDialogue('dlgPlaceCard');
+        }
     }
+}
+
+function introduceNextMysteryPokemon() {
+    mysteryPokemon = pendingQueue.shift();
+    renderMysteryCard();
+    mysteryCardCaption.classList.remove('hidden');
+    submitBtn.classList.remove('hidden');
+    setDialogue('dlgPlaceCard');
 }
 
 function startNewRound() {
     currentCriterion = SORT_CRITERIA[Math.floor(Math.random() * SORT_CRITERIA.length)];
-    roundPokemon = drawRoundPokemon(currentCriterion);
-    isRoundSolved = false;
+    const roundPokemon = drawRoundPokemon(currentCriterion);
+    const introOrder = shuffle(roundPokemon);
+
+    placedPokemon = [introOrder[0]];
+    pendingQueue = introOrder.slice(1);
+    isRoundOver = false;
+    roundOutcome = null;
+    lastFailedPokemon = null;
 
     renderObjective();
-    sortableContainer.innerHTML = shuffleForDisplay().map(buildCardHTML).join('');
-
-    submitBtn.classList.remove('hidden');
+    renderRow();
     nextBtn.classList.add('hidden');
-    setDialogue('dlgPrompt');
+
+    introduceNextMysteryPokemon();
 }
 
-function evaluateOrder() {
-    const cards = Array.from(sortableContainer.children);
-    const userOrderIds = cards.map((card) => Number(card.dataset.pokemonId));
-    const correctOrderIds = getCorrectOrderIds();
+function endRoundInFailure() {
+    isRoundOver = true;
+    roundOutcome = 'gameover';
+    lastFailedPokemon = mysteryPokemon;
 
-    let allCorrect = true;
-    cards.forEach((card, index) => {
-        const isCorrect = userOrderIds[index] === correctOrderIds[index];
-        card.classList.remove('correct-slot', 'incorrect-slot');
-        card.classList.add(isCorrect ? 'correct-slot' : 'incorrect-slot');
-        if (!isCorrect) allCorrect = false;
-    });
+    // Reveal where the mystery Pokemon actually belonged, styled red, so
+    // the player can see what they got wrong before starting a new round.
+    const correctIndex = getCorrectGapIndex(mysteryPokemon);
+    placedPokemon.splice(correctIndex, 0, mysteryPokemon);
+    renderRow();
+    const revealedCard = sortableRow.querySelector(`[data-pokemon-id="${mysteryPokemon.id}"]`);
+    if (revealedCard) revealedCard.classList.add('reveal-wrong');
 
-    if (!allCorrect) {
-        setDialogue('dlgTryAgain');
+    setDialogue('dlgGameOver', { name: getPokemonName(mysteryPokemon) });
+
+    mysteryCardSlot.innerHTML = '';
+    mysteryCardCaption.classList.add('hidden');
+    submitBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+    mysteryPokemon = null;
+}
+
+function finishRoundSuccess() {
+    isRoundOver = true;
+    roundOutcome = 'success';
+    setDialogue('dlgSuccess');
+
+    mysteryCardCaption.classList.add('hidden');
+    submitBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+}
+
+function handleSubmit() {
+    if (mysteryGapIndex === null || !mysteryPokemon) return;
+
+    const correctIndex = getCorrectGapIndex(mysteryPokemon);
+    if (mysteryGapIndex !== correctIndex) {
+        endRoundInFailure();
         return;
     }
 
-    isRoundSolved = true;
-    cards.forEach((card) => {
-        const pokemon = roundPokemon.find((p) => p.id === Number(card.dataset.pokemonId));
-        const statEl = card.querySelector('.sort-card-stat');
-        statEl.textContent = formatStatValue(pokemon, currentCriterion);
-        statEl.classList.remove('hidden');
-    });
+    placedPokemon.splice(correctIndex, 0, mysteryPokemon);
+    mysteryPokemon = null;
+    renderRow();
 
-    submitBtn.classList.add('hidden');
-    nextBtn.classList.remove('hidden');
-    setDialogue('dlgSuccess');
+    if (pendingQueue.length === 0) {
+        finishRoundSuccess();
+    } else {
+        introduceNextMysteryPokemon();
+    }
 }
 
 async function loadPokemonDatabase() {
@@ -221,66 +293,75 @@ async function loadPokemonDatabase() {
     }
 }
 
-// Drag and drop: reordering is done by moving the dragged card immediately
-// before or after whichever card it's dropped on, based on their positions
-// in the container at drag-start time.
-sortableContainer.addEventListener('dragstart', (event) => {
-    const card = event.target.closest('.sort-card');
+// Drag and drop: only the mystery card is ever draggable. Dropping it on a
+// drop-gap moves its DOM node right after that gap (visually inserting it
+// into the row) and records which gap it's currently sitting in; dropping
+// it back on the staging slot un-places it. Submit only reads
+// mysteryGapIndex, so re-dragging to a different gap before submitting is
+// always safe.
+document.addEventListener('dragstart', (event) => {
+    const card = event.target.closest('.sort-card.mystery');
     if (!card) return;
-    draggedCard = card;
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', card.dataset.pokemonId);
-    // Let the browser paint the drag ghost before we dim the source card.
     requestAnimationFrame(() => card.classList.add('grabbing'));
 });
 
-sortableContainer.addEventListener('dragend', () => {
-    if (draggedCard) draggedCard.classList.remove('grabbing');
-    draggedCard = null;
-    sortableContainer.querySelectorAll('.drag-over').forEach((el) => el.classList.remove('drag-over'));
+document.addEventListener('dragend', (event) => {
+    const card = event.target.closest('.sort-card.mystery');
+    if (card) card.classList.remove('grabbing');
+    document.querySelectorAll('.drag-over').forEach((el) => el.classList.remove('drag-over'));
 });
 
-sortableContainer.addEventListener('dragover', (event) => {
-    event.preventDefault(); // required to allow this element to be a drop target
+sortableRow.addEventListener('dragover', (event) => {
+    if (!event.target.closest('.drop-gap')) return;
+    event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
 });
 
-sortableContainer.addEventListener('dragenter', (event) => {
-    const card = event.target.closest('.sort-card');
-    if (!card || card === draggedCard) return;
-    card.classList.add('drag-over');
+sortableRow.addEventListener('dragenter', (event) => {
+    const gap = event.target.closest('.drop-gap');
+    if (!gap) return;
+    gap.classList.add('drag-over');
 });
 
-sortableContainer.addEventListener('dragleave', (event) => {
-    const card = event.target.closest('.sort-card');
-    if (!card) return;
-    // Only clear the highlight once the pointer has actually left the card,
-    // not when it moves between the card's own child elements.
-    if (!card.contains(event.relatedTarget)) {
-        card.classList.remove('drag-over');
+sortableRow.addEventListener('dragleave', (event) => {
+    const gap = event.target.closest('.drop-gap');
+    if (!gap) return;
+    if (!gap.contains(event.relatedTarget)) {
+        gap.classList.remove('drag-over');
     }
 });
 
-sortableContainer.addEventListener('drop', (event) => {
+sortableRow.addEventListener('drop', (event) => {
+    const gap = event.target.closest('.drop-gap');
+    if (!gap) return;
     event.preventDefault();
-    const targetCard = event.target.closest('.sort-card');
-    if (!targetCard || !draggedCard || targetCard === draggedCard) return;
+    gap.classList.remove('drag-over');
 
-    targetCard.classList.remove('drag-over');
+    const mysteryCard = mysteryCardSlot.querySelector('.sort-card.mystery') || sortableRow.querySelector('.sort-card.mystery');
+    if (!mysteryCard) return;
 
-    const cards = Array.from(sortableContainer.children);
-    const draggedIndex = cards.indexOf(draggedCard);
-    const targetIndex = cards.indexOf(targetCard);
+    gap.after(mysteryCard);
+    mysteryGapIndex = Number(gap.dataset.gapIndex);
+});
 
-    if (draggedIndex < targetIndex) {
-        targetCard.after(draggedCard);
-    } else {
-        targetCard.before(draggedCard);
-    }
+// Dropping the mystery card back onto its own staging slot un-places it.
+mysteryCardSlot.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+});
+
+mysteryCardSlot.addEventListener('drop', (event) => {
+    event.preventDefault();
+    const mysteryCard = sortableRow.querySelector('.sort-card.mystery');
+    if (!mysteryCard) return;
+    mysteryCardSlot.appendChild(mysteryCard);
+    mysteryGapIndex = null;
 });
 
 submitBtn.addEventListener('click', () => {
-    evaluateOrder();
+    handleSubmit();
 });
 
 nextBtn.addEventListener('click', () => {
