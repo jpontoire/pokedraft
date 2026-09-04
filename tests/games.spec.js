@@ -3,19 +3,20 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Portal', () => {
-    test('loads and shows all 5 game buttons', async ({ page }) => {
+    test('loads and shows all 6 game buttons', async ({ page }) => {
         await page.goto('/');
 
         await expect(page.locator('.portal-title')).toBeVisible();
 
         const gameButtons = page.locator('a.portal-btn');
-        await expect(gameButtons).toHaveCount(5);
+        await expect(gameButtons).toHaveCount(6);
 
         await expect(page.locator('a[href="./draft/"]')).toBeVisible();
         await expect(page.locator('a[href="./zoom/"]')).toBeVisible();
         await expect(page.locator('a[href="./dex/"]')).toBeVisible();
         await expect(page.locator('a[href="./palette/"]')).toBeVisible();
         await expect(page.locator('a[href="./grid/"]')).toBeVisible();
+        await expect(page.locator('a[href="./order/"]')).toBeVisible();
     });
 });
 

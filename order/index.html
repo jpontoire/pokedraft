@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeOrder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <a href="../" class="pixel-btn back-to-portal-btn" data-i18n="backToMenu">< Menu</a>
+        <button id="lang-toggle" type="button" class="pixel-btn lang-toggle-btn">EN</button>
+        <h1 class="app-title">PokeOrder</h1>
+
+        <p id="objective-text" class="objective-text"></p>
+
+        <div id="sortable-container" class="sortable-container"></div>
+
+        <div class="order-actions">
+            <button type="button" id="submit-btn" class="pixel-btn" data-i18n="submitOrder">Submit Order</button>
+            <button type="button" id="next-btn" class="pixel-btn hidden" data-i18n="nextRound">Next Round</button>
+        </div>
+
+        <footer id="dialogue-box" class="dialogue-box">
+            <p id="dialogue-text" data-i18n="dlgLoading">Loading Pokemon data...</p>
+        </footer>
+    </div>
+
+    <script src="../translations/shared.js"></script>
+    <script src="../translations/order.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
